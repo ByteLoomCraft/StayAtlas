@@ -3,6 +3,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
+import dotenv from "dotenv";
+dotenv.config()
 
 const generateAccessAndRefreshToken =  async function(userId){
     try{
@@ -51,8 +53,8 @@ const registerUser = asyncHandler(async(req,res)=>{
     const existedUser = await User.findOne({phoneNumber})
 
     if(existedUser){
-        throw new ApiError(409,"User with same phoneNumber already exits")
-        
+        // console.log(new ApiError(400,"User with same phoneNumber already exits"));
+        throw new ApiError(400,"User with same phoneNumber already exits")
     }
 
     const user = await User.create({
@@ -66,10 +68,29 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
 
+    const {accessToken,refreshToken} =  await generateAccessAndRefreshToken(createdUser._id)
+    
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieOptions = {
+       httpOnly: true,
+       secure: isProduction,                       // only true over HTTPS
+       sameSite: isProduction ? "None" : "Lax",    // None+Secure in prod; Lax in dev
+    };
+
     return res
     .status(201)
+    .cookie("accessToken",accessToken,cookieOptions)
+    .cookie("refreshToken",refreshToken,cookieOptions)
     .json(
-        new ApiResponse(200,createdUser,"Registration Successfull")
+        new ApiResponse(
+            200,
+            {
+                createdUser,
+                accessToken,
+                refreshToken,
+            },
+            "Registration Successfull"
+        )
     )
 })
 
@@ -104,15 +125,21 @@ const loginUser = asyncHandler(async(req,res) =>{
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
-    const options ={
-        httpOnly: true,
-        secure:true
-    }
+    // const options ={
+    //     httpOnly: true,
+    //     secure:true
+    // }
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieOptions = {
+       httpOnly: true,
+       secure: isProduction,                       // only true over HTTPS
+       sameSite: isProduction ? "None" : "Lax",    // None+Secure in prod; Lax in dev
+    };
 
     return res
     .status(200)
-    .cookie("accessToken",accessToken,options)
-    .cookie("refreshToken",refreshToken,options)
+    .cookie("accessToken",accessToken,cookieOptions)
+    .cookie("refreshToken",refreshToken,cookieOptions)
     .json(
         new ApiResponse(
             200,
@@ -125,6 +152,23 @@ const loginUser = asyncHandler(async(req,res) =>{
         )
     )
 })
+
+
+export const getUser = async (req,res) => {
+    try{
+        res.status(200).json({
+            user: req.user,
+            message: "User fetched successfully",
+        })
+    }catch(err){
+        return res.status(500).json({
+            statusCode:500,
+            success: false,
+            message: err.message || "Internal server error"
+        })
+
+    }
+}
 
 const logoutUser = asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(
@@ -223,6 +267,4 @@ export {
     logoutUser,
     refreshAccessToken,
     changeCurrentPassword
-
-
 }

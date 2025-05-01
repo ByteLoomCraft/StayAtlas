@@ -1,17 +1,20 @@
-import axios from "axios";
+import axios from "../utils/axios.js";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { setUser } from "../state/features/authSlice.js";
+import { useDispatch } from "react-redux";
 
 const bottleGreen = "#006A4E";
 
 export default function Login() {
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
   const [form, setForm] = useState({
-    contact: "",
+    phoneNumber:"",
     countryCode: "+91",
     password: "",
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -24,30 +27,37 @@ export default function Login() {
     return phoneRegex.test(number);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     const newErrors = {};
 
-    if (!validatePhoneNumber(form.contact)) {
-      newErrors.contact = "Enter a valid 10-digit phone number.";
+    if (!validatePhoneNumber(form.phoneNumber)) {
+      newErrors.phoneNumber = "Enter a valid 10-digit phone number.";
     }
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
       try{
-        const response = axios.post(`${import.meta.env.VITE_BACKEND_URL}/v1/users/register`)
+        const response = await axios.post(`/v1/users/login`,form)
+        const { data } = response;
+        if(data.statusCode === 200){
+          dispatch(setUser(data.data.user))
+          toast.success("Login successful!");
+          navigate("/");
+        }
+        
       }catch(err){
         console.log(err);
         toast.error("An error occurred while submitting the form. Please try again.");
+      }finally{
+        setForm({
+          phoneNumber: "",
+          countryCode: "+91",
+          password: "",
+        });
       }
-      alert("Form submitted successfully!");
-      setForm({
-        contact: "",
-        countryCode: "+91",
-        password: "",
-      });
-      console.log(form);
+      
     }
   };
 
@@ -81,9 +91,9 @@ export default function Login() {
 
           <input
             type="tel"
-            name="contact"
+            name="phoneNumber"
             placeholder="Contact Number"
-            value={form.contact}
+            value={form.phoneNumber}
             onChange={handleChange}
             required
             className="border p-2 rounded flex-1"
