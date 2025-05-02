@@ -1,0 +1,46 @@
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+
+// Ensure directory exists
+const ensureDirExists = (dir) => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+};
+
+const UPLOAD_FOLDER = "public/villaAssets";
+ensureDirExists(UPLOAD_FOLDER);
+
+// Multer storage configuration
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, UPLOAD_FOLDER);
+    },
+    filename: function (req, file, cb) {
+        const ext = path.extname(file.originalname);
+        const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+        cb(null, uniqueName);
+    }
+});
+
+// File type filter
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only .jpeg, .jpg, .png, .webp files are allowed!'));
+    }
+};
+
+// Multer config
+const upload = multer({
+    storage: storage,
+    fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5Mb
+});
+
+export default upload;

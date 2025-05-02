@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { DB_NAME } from "../constants.js";
-
+import dotenv from "dotenv"
+dotenv.config()
 //db connection 
 const connectDB = async()=>{
   try{
@@ -8,7 +9,7 @@ const connectDB = async()=>{
     console.log(`\nMongoDB connected !! DB Host:${connectionInstance.connection.host}`)
 
   }catch(error){
-    console.log("MONGODB connection FAILDE",error)
+    console.log("MONGODB connection FAILED",error)
     process.exit(1)
   }
 }

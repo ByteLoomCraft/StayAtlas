@@ -3,6 +3,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
+dotenv.config()
 
 const generateAccessAndRefreshToken =  async function(userId){
     try{
@@ -66,10 +68,29 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
 
+    const {accessToken,refreshToken} = generateAccessAndRefreshToken(createdUser._id)
+
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieOptions = {
+        httpOnly: true,
+        secure: isProduction,                       // only true over HTTPS
+        sameSite: isProduction ? "None" : "Lax",    // None+Secure in prod; Lax in dev
+    };
+
     return res
     .status(201)
+    .cookie("accessToken",accessToken,cookieOptions)
+    .cookie("refreshToken",refreshToken,cookieOptions)
     .json(
-        new ApiResponse(200,createdUser,"Registration Successfull")
+        new ApiResponse(
+            200,
+            {
+                createdUser,
+                accessToken,
+                refreshToken
+            },
+            "Registration Successfull"
+        )
     )
 })
 
@@ -83,7 +104,7 @@ const loginUser = asyncHandler(async(req,res) =>{
     //send cookie
 
     const {phoneNumber,password} = req.body
-    if(!phoneNumber && !password){
+    if(!phoneNumber || !password){
         throw new ApiError(400,"phoneNumber or password is required")
     }
 
@@ -104,15 +125,17 @@ const loginUser = asyncHandler(async(req,res) =>{
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
-    const options ={
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieOptions = {
         httpOnly: true,
-        secure:true
-    }
+        secure: isProduction,                       // only true over HTTPS
+        sameSite: isProduction ? "None" : "Lax",    // None+Secure in prod; Lax in dev
+    };
 
     return res
     .status(200)
-    .cookie("accessToken",accessToken,options)
-    .cookie("refreshToken",refreshToken,options)
+    .cookie("accessToken",accessToken,cookieOptions)
+    .cookie("refreshToken",refreshToken,cookieOptions)
     .json(
         new ApiResponse(
             200,
@@ -217,12 +240,44 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
+const getUser  = asyncHandler(async(req, res) => {
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200,
+        req.user,
+        "User fetched successfully"
+    ))
+})
+
+const updateUserName = asyncHandler(async(req,res)=>{
+    const {newFirstName, newLastName} = req.body
+    const user = req.user
+    if(!newFirstName || !newLastName){
+        throw new ApiError(400,"new field are required!!")
+    }
+    user.firstName = newFirstName
+    user.lastName = newLastName
+
+    await user.save()
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,{},"Details updated successfully")
+    )
+})
+
+
+
+
+
 export {
     registerUser,
     loginUser,
     logoutUser,
     refreshAccessToken,
-    changeCurrentPassword
-
-
+    changeCurrentPassword,
+    getUser,
+    updateUserName
 }

@@ -1,7 +1,8 @@
 import mongoose,{Schema} from "mongoose";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-
+import dotenv from "dotenv"
+dotenv.config()
 const userSchema = new Schema(
     {
         firstName:{
@@ -27,7 +28,7 @@ const userSchema = new Schema(
         },
         email: {
             type: String,
-            lowecase: true,
+            lowercase: true,
             trim: true, 
         },
         password: {
