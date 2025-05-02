@@ -18,6 +18,7 @@ import axios from "./utils/axios"
 import { useEffect, useState } from "react"
 import { setUser, logout } from "./state/features/authSlice"
 import ProtectedRoutes from "./components/ProtectedRoutes"
+import Profile from "./pages/Profile"
 
 function App() {
 
@@ -74,6 +75,10 @@ function App() {
       {
         path:"/booking",
         element:(<ProtectedRoutes><Booking/></ProtectedRoutes>)
+      },
+      {
+        path:"/profile",
+        element:(<ProtectedRoutes><Profile/></ProtectedRoutes>)
       },
       {
         path:"/exclusive",

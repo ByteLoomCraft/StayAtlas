@@ -1,12 +1,46 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "@/state/features/authSlice";
 import logo from "../assets/stay.jpg";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import axios from "../utils/axios"
+import toast from "react-hot-toast";
 
 const Header = () => {
-  const isAuth = useSelector((state) => state.auth.isLoggedIn);
+  // const isAuth = useSelector((state) => state.auth);
+  const {isLoggedIn:isAuth,firstName} = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const navigate = useNavigate();
+
+  async function logoutUser() {
+    console.log("Logout clicked");
+    try {
+      const response = await axios.post("/v1/users/logout");
+      console.log("Logout response:", response.data);
+      if (response.data.statusCode === 200) {
+        toast.success("Logout successful");
+        dispatch(logout());
+        navigate("/login");
+      }else{
+        toast.error("Logout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  }
 
   return (
     <header className="bg-[#00291c] sticky top-0 z-50 shadow-md">
@@ -93,7 +127,33 @@ const Header = () => {
               >
                 CONTACT US
               </a>
+              <div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                  <Avatar className="w-10 h-10 cursor-pointer">
+                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                    <AvatarFallback>{firstName}</AvatarFallback>
+                  </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/profile")}>
+                        Profile
+                        <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => logoutUser()}>
+                      Log out
+                      <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
+            
 
             {/* Mobile Dropdown */}
             <div className="md:hidden relative">
