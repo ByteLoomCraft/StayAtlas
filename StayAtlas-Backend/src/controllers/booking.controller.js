@@ -30,7 +30,7 @@ export const createBooking = asyncHandler(async (req, res) => {
 
   const booking = await Booking.create({
     villa,
-    user: '68136cce43839678de673680',                     //user: req.user._id,
+    user: req.user._id,
     checkIn,
     checkOut,
     guests,
@@ -77,6 +77,34 @@ export const getUserBookings = asyncHandler(async (req, res) => {
 
   res.status(200).json(new ApiResponse(200, bookings));
 });
+
+//  desc    Get a single booking by ID (Admin)
+//  route   GET /api/v1/bookings/admin/:id
+
+export const getBookingByIdAdmin = asyncHandler(async (req, res) => {
+  const booking = await Booking.findById(req.params.id)
+    .populate('user', 'name email')
+    .populate('villa', 'name location images');
+
+  if (!booking) {
+    throw new ApiError(404, 'Booking not found');
+  }
+
+  res.status(200).json(new ApiResponse(200, booking));
+});
+
+//  desc    Get all bookings for admin
+//  route   GET /api/v1/bookings/admin
+
+export const getAllBookingAdmin = asyncHandler(async (req, res) => {
+  const bookings = await Booking.find()
+    .populate('user', 'name email')
+    .populate('villa', 'name location images')
+    .sort({ createdAt: -1 });
+
+  res.status(200).json(new ApiResponse(200, bookings));
+});
+
 
 //  desc    Cancel a booking
 //  route   PATCH /api/v1/bookings/:id/cancel

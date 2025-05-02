@@ -1,34 +1,45 @@
 import express from 'express';
 import {
+  checkBookingAvailability,
   createBooking,
   getBookingById,
-  checkBookingAvailability,
   getUserBookings,
+  getBookingByIdAdmin,
+  getAllBookingAdmin,
   cancelBooking,
   confirmPayment,
 } from '../controllers/booking.controller.js';
 
-// import { protect } from '../middlewares/auth.middleware.js';
+import { verifyJWT } from '../middlewares/auth.middleware.js';
+import { isAdmin } from '../middlewares/admin.middleware.js';
 
 const router = express.Router();
 
-// Check villa availability
+
+//  Public: Check villa availability
 router.get('/check-availability', checkBookingAvailability);
 
-// Create new booking
-router.post('/', createBooking);
+//  Authenticated users only
+router.post('/', verifyJWT, createBooking);
 
-// Get single booking by ID
-router.get('/:id', getBookingById);
+//  Authenticated users only (can only see own booking)
+router.get('/:id', verifyJWT, getBookingById);
 
-// Get all bookings for a user
-router.get('/user/:userId',  getUserBookings);
+//  Authenticated users can see their own bookings
+router.get('/user/:userId', verifyJWT, getUserBookings);
 
-// Cancel a booking          
-router.patch('/:id/cancel', cancelBooking);
+//  Admin only: View a booking by ID
+router.get('/admin/:id', verifyJWT, isAdmin, getBookingByIdAdmin);
 
-// Confirm payment
-router.patch('/:id/pay', confirmPayment);
+//  Admin only: View all booking 
+router.get('/admin', verifyJWT, isAdmin, getAllBookingAdmin);
+
+
+//  Authenticated users can cancel
+router.patch('/:id/cancel', verifyJWT, cancelBooking);
+
+//  Authenticated users confirm payment
+router.patch('/:id/pay', verifyJWT, confirmPayment);
 
 
 export default router;
