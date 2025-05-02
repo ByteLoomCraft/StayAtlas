@@ -89,17 +89,17 @@ You should see:
 | Method | Endpoint                       | Description                    |
 |--------|--------------------------------|--------------------------------|
 | POST   | /api/users/favourites/:villaId | Add villa to favourites        |
-| DELETE | /api/users/favourites/:villaId| Remove from favourites         |
+| DELETE | /api/users/favourites/:villaId | Remove from favourites         |
 | GET    | /api/users/favourites          | Get all favourited villas      |
 
 ---
 
 ##  Role Management
 
-| Role  | Description                              |
-|-------|------------------------------------------|
-| user  | Default role, can browse/book villas     |
-| owner | Promoted after listing first villa       |
+| Role  | Description                                 |
+|-------|---------------------------------------------|
+| user  | Default role, can browse/book villas        |
+| owner | Promoted after listing first villa          |
 | admin | Can approve/reject villas, see all bookings |
 
 Automatic Role Promotion:

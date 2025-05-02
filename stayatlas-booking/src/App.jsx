@@ -13,8 +13,45 @@ import Chat from "./pages/FooterPage/Chat";
 import Privacy from "./pages/FooterPage/Privacy"
 import SignupForm from "./pages/Signup"
 import Login from "./pages/Login"
+import { useDispatch } from "react-redux"
+import axios from "./utils/axios"
+import { useEffect, useState } from "react"
+import { setUser, logout } from "./state/features/authSlice"
+import ProtectedRoutes from "./components/ProtectedRoutes"
+import Profile from "./pages/Profile"
 
 function App() {
+
+  const dispatch = useDispatch();
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    axios
+      .get("/v1/users/getUser")               
+      .then((res) => {
+        console.log(res.data.user);     
+        if (res.data.user) {
+          dispatch(setUser(res.data.user));  
+        } else {
+          dispatch(logout());   
+        }
+      })
+      .catch(() => {
+        dispatch(logout());                 
+      })
+      .finally(() => {
+        setAuthChecked(true);               
+      });
+  }, [dispatch]); 
+
+
+  if (!authChecked) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#D6AE7B]"></div>
+      </div>
+    );
+  }
 
   const appRouter = createBrowserRouter([{
     path:"/",
@@ -23,7 +60,9 @@ function App() {
     children:[
       {
         path:"/",
-        element:(<Home/>)
+        element:(
+         <Home/>
+        )
       },
       {
         path:"/signup",
@@ -35,19 +74,23 @@ function App() {
       },
       {
         path:"/booking",
-        element:(<Booking/>)
+        element:(<ProtectedRoutes><Booking/></ProtectedRoutes>)
+      },
+      {
+        path:"/profile",
+        element:(<ProtectedRoutes><Profile/></ProtectedRoutes>)
       },
       {
         path:"/exclusive",
-        element:(<Exclusive/>)
+        element:(<ProtectedRoutes><Exclusive/></ProtectedRoutes>)
       },
       {
         path:"/explore",
-        element:(<Explore/>)
+        element:(<ProtectedRoutes><Explore/></ProtectedRoutes>)
       },
       {
         path:"/list-your-property",
-        element:(<ListYourProperty/>)
+        element:(<ProtectedRoutes><ListYourProperty/></ProtectedRoutes>)
       },
       {
         path:"/about-us",

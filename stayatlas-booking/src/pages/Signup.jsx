@@ -1,13 +1,20 @@
+import axios from "../utils/axios.js"
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useDispatch } from 'react-redux'
+import { setUser } from "../state/features/authSlice.js";
 
 const bottleGreen = "#006A4E";
 
 export default function SignupForm() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
     contact: "",
+    phoneNumber:"",
     countryCode: "+91",
     dob: "",
     password: "",
@@ -39,7 +46,7 @@ export default function SignupForm() {
     return phoneRegex.test(number);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     const newErrors = {};
 
@@ -47,8 +54,8 @@ export default function SignupForm() {
       newErrors.dob = "Your age must be between 18 years to 100 years.";
     }
 
-    if (!validatePhoneNumber(form.contact)) {
-      newErrors.contact = "Enter a valid 10-digit phone number.";
+    if (!validatePhoneNumber(form.phoneNumber)) {
+      newErrors.phoneNumber = "Enter a valid 10-digit phone number.";
     }
 
     if (form.password !== form.confirmPassword) {
@@ -58,20 +65,36 @@ export default function SignupForm() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      alert("Form submitted successfully!");
-      setForm({
-        firstName: "",
-        lastName: "",
-        contact: "",
-        countryCode: "+91",
-        dob: "",
-        password: "",
-        confirmPassword: "",
-        email: ""
-      });
-      console.log(form);
+      // alert("Form submitted successfully!");
+      try{
+        const response = await axios.post(`/v1/users/register`,form)
+        const data = response.data;
+        if(data.statusCode === 200){
+          toast.success("Registration successful!")
+          console.log(data)
+          dispatch(setUser(data.data.createdUser))
+          navigate("/")
+        }else{
+          toast.error(data.message || "Registration failed. Please try again.");
+        }
+      }catch(err){
+        console.log(err);
+        toast.error("An error occurred while submitting the form. Please try again.");
+      }finally{
+        setForm({
+          firstName: "",
+          lastName: "",
+          phoneNumber: "",
+          countryCode: "+91",
+          dob: "",
+          password: "",
+          confirmPassword: "",
+          email: ""
+        });
+      }
     }
   };
+
 
   return (
     <div className="py-7 min-h-screen flex items-center justify-center bg-gray-900">
@@ -124,9 +147,9 @@ export default function SignupForm() {
 
           <input
             type="tel"
-            name="contact"
-            placeholder="Contact Number"
-            value={form.contact}
+            name="phoneNumber"
+            placeholder="Phone Number"
+            value={form.phoneNumber}
             onChange={handleChange}
             required
             className="border p-2 rounded flex-1"
@@ -134,8 +157,8 @@ export default function SignupForm() {
             pattern="\d*"
           />
         </div>
-        {errors.contact && (
-          <p className="text-red-500 text-sm mt-1">{errors.contact}</p>
+        {errors.phoneNumber && (
+          <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
         )}
 
         <input

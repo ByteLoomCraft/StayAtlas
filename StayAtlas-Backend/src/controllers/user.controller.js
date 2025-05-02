@@ -53,8 +53,8 @@ const registerUser = asyncHandler(async(req,res)=>{
     const existedUser = await User.findOne({phoneNumber})
 
     if(existedUser){
-        throw new ApiError(409,"User with same phoneNumber already exits")
-        
+        // console.log(new ApiError(400,"User with same phoneNumber already exits"));
+        throw new ApiError(400,"User with same phoneNumber already exits")
     }
 
     const user = await User.create({
@@ -148,6 +148,23 @@ const loginUser = asyncHandler(async(req,res) =>{
         )
     )
 })
+
+
+export const getUser = async (req,res) => {
+    try{
+        res.status(200).json({
+            user: req.user,
+            message: "User fetched successfully",
+        })
+    }catch(err){
+        return res.status(500).json({
+            statusCode:500,
+            success: false,
+            message: err.message || "Internal server error"
+        })
+
+    }
+}
 
 const logoutUser = asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(
