@@ -1,8 +1,9 @@
 import React from 'react'
+import ExclusiveProperty from '../components/ExclusiveProperty'
 
 const Exclusive = () => {
   return (
-    <div>Exclusive</div>
+    <ExclusiveProperty />
   )
 }
 

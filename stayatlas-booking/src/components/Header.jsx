@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMatch, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/state/features/authSlice";
 import logo from "../assets/stay.jpg";
@@ -18,7 +18,8 @@ import axios from "../utils/axios"
 import toast from "react-hot-toast";
 
 const Header = () => {
-  // const isAuth = useSelector((state) => state.auth);
+  const match  = useMatch("/viewExclusive/:id")
+  
   const {isLoggedIn:isAuth,firstName} = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
@@ -47,7 +48,12 @@ const Header = () => {
       <div className="max-w-[2560px] mx-auto flex justify-between items-center py-5 px-6 md:px-20">
         {/* Logo */}
         <div onClick={() => navigate("/")} className="cursor-pointer">
-          <img src={logo} alt="StayAtlas Logo" className="h-10 md:h-12 w-auto" />
+          {match ? 
+            <div className="text-white text-2xl font-light tracking-widest hover:scale-105 transition-transform duration-300 cursor-pointer">
+             Stay<span className="italic bg-gradient-to-br from-[#F9F295] to-[#fceb01] bg-clip-text text-transparent">Exclusive</span>
+            </div>
+            : 
+            <img src={logo} alt="StayAtlas Logo" className="h-10 md:h-12 w-auto" />}
         </div>
 
         {isAuth ? (

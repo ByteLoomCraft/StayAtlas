@@ -19,6 +19,8 @@ import { useEffect, useState } from "react"
 import { setUser, logout } from "./state/features/authSlice"
 import ProtectedRoutes from "./components/ProtectedRoutes"
 import Profile from "./pages/Profile"
+import ViewExclusive from "./pages/ViewExclusive"
+import ExclusiveLayout from "./layout/ExclusiveLayout"
 
 function App() {
 
@@ -83,6 +85,17 @@ function App() {
       {
         path:"/exclusive",
         element:(<ProtectedRoutes><Exclusive/></ProtectedRoutes>)
+      },
+      {
+        path:"/viewExclusive",
+        // element:(<ExclusiveLayout/>),
+        children:[
+          {
+            path:":id",
+            element: (<ProtectedRoutes><ViewExclusive/></ProtectedRoutes>)
+          }
+        ]
+         
       },
       {
         path:"/explore",
