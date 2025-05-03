@@ -105,7 +105,7 @@ const ExclusiveInfo = () => {
   return (
     <>
     <div className="w-vw bg-[#F5F5F5] h-225 md:h-215">
-    <div className="absolute h-full w-full flex justify-center items-center">
+    <div className="absolute h-full bg-[#F5F5F5] md:bg-transparent w-full flex justify-center items-center">
         <div className="backdrop-blur-[17px] h-auto w-90 ">
           <div className=" p-2"
             onTouchStart={onTouchStart}
@@ -159,7 +159,7 @@ const ExclusiveInfo = () => {
         </div>
     </div>
     <div  className="h-0 md:h-full p-0 m-0 flex object-cover ">
-    <div className="w-[60%] overflow-hidden md:overflow-visible pl-15 pr-80 py-15 bg-gray-100">
+    <div className=" w-0 md:w-[50%] overflow-hidden md:overflow-visible pl-15 pr-0 md:pr-80 py-15 bg-gray-100">
    <div className="font-custom text-slate-600 space-y-3 h-full w-full">
     
     {/* Property Name */}
