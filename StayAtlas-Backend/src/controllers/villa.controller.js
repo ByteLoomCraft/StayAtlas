@@ -11,18 +11,20 @@ import { createVillaSchema, updateVillaSchema } from "../validators/villa.valida
 // =======================================================
 
 const createVilla = asyncHandler(async (req, res) => {
+  console.log("hello")
   let validatedData;
   try {
+    console.log("hello2")
     validatedData = createVillaSchema.parse(req.body);
   } catch (error) {
     throw new ApiError(400, "Validation failed", error.errors);
   }
 
   // Check if ownerId exists in User collection
-  const userExists = await User.findById(validatedData.ownerId);
-  if (!userExists) {
-    throw new ApiError(404, "Owner ID does not exist");
-  }
+  // const userExists = await User.findById(validatedData.ownerId);
+  // if (!userExists) {
+  //   throw new ApiError(404, "Owner ID does not exist");
+  // }
 
   const villa = await Villa.create(validatedData);
 

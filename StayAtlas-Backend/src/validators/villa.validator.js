@@ -16,7 +16,7 @@ export const availabilitySchema = z.object({
 });
 
 export const createVillaSchema = z.object({
-  ownerId:z.string().min(1),
+  //ownerId:z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
   address: addressSchema,

@@ -14,7 +14,7 @@ import {
 const router = express.Router();
 
 router.get("/", getAllApprovedVillas); // ---------- Public Routes ----------
-router.post("/", createVilla); // ---------- Public Routes ----------
+router.post("/create", createVilla); // ---------- Public Routes ----------
 router.get("/admin", getAllVillasAdmin); // ---------- Admin Routes ----------
 router.get("/admin/:id", getVillaByIdAdmin); // ---------- Admin Routes ----------
 router.get("/:id", getVillaById); // ---------- Public Routes ----------
