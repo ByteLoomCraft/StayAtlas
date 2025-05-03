@@ -17,8 +17,9 @@ import {
 import { FaHotjar } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Dot, DotSquareIcon } from "lucide-react";
 
-const VilaDetail = () => {
+const VilaDetail = ({property=null}) => {
   const [guestDropdownOpen, setGuestDropdownOpen] = useState(false);
   const [adults, setAdults] = useState(1);
   const [pets, setPets] = useState(0);
@@ -27,21 +28,30 @@ const VilaDetail = () => {
   const [endDate, setEndDate] = useState(null);
   const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+  if(property===null){
+    return <div>
+      <h1 className="flex justify-center items-center h-screen"><Loader className=" font-extrabold size-11 animate-spin"/></h1>
+    </div>
+  }
+
+  // console.log(property)
+
   return (
     <div className="font-custom min-h-screen flex items-center justify-center bg-[#f8f7f6] text-black p-6">
       <div className="flex flex-col md:flex-row gap-6 max-w-7xl w-full">
         <div className="md:w-2/3 space-y-6">
           <div>
             <h1 className="text-3xl font-bold">
-              Stayatlas - Highland Villa 8BHK
+              {property.name}
             </h1>
-            <p className="text-lg">Panchgani, Maharashtra</p>
+            <p className="text-lg">{`${property?.address?.city}, ${property?.address?.country}`}</p>
           </div>
 
           <div>
             <p className="text-sm">
-              Post Bhilar Taluka Mahabaleshwar District Satara Landmark: Behind
-              shivnya palace Panchgani Maharashtra - 412805
+              {
+               `${property?.address?.street}, ${property?.address?.city}, ${property?.address?.state}, ${property?.address?.country}, ${property?.address?.zipcode}` 
+              }
             </p>
             <p className="mt-2 font-semibold">5.0 ★</p>
           </div>
@@ -59,15 +69,11 @@ const VilaDetail = () => {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold">Property Description</h2>
+            <h2 className="text-2xl font-bold pb-2">Property Description</h2>
             <p className="text-sm leading-relaxed">
-              This villa is located in the most peaceful region of Maharashtra.
-              Our 8BHK Highland Villa in Panchgani offers stunning views and
-              luxurious amenities. It is elegantly furnished with comfortable
-              seating, a serene pool, and a relaxing patio. Perfect for hosting
-              events or enjoying a getaway with family and friends. Features
-              include spacious bedrooms, a large lawn, a fully-equipped kitchen,
-              king-size beds, and pet-friendly accommodation.
+              {
+                property.description
+              }
             </p>
           </div>
 
@@ -83,26 +89,28 @@ const VilaDetail = () => {
           <div>
             <h2 className="text-2xl font-bold">Amenities</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-              {[
-                { icon: <FaSnowflake className="text-black" />, label: "Air Conditioner" },
-                { icon: <FaCar />, label: "Private Parking" },
-                { icon: <FaFire />, label: "Barbeque (Chargeable)" },
-                { icon: <FaHotjar />, label: "Microwave" },
-                { icon: <FaCouch />, label: "Sofa" },
-                { icon: <FaUtensils />, label: "Dining Table" },
-                { icon: <FaTv />, label: "Flat Screen TV" },
-                { icon: <FaDoorClosed />, label: "Wardrobe" },
-                { icon: <FaSnowflake />, label: "Refrigerator" },
-                { icon: <FaChair />, label: "Outdoor Furniture" },
-                { icon: <FaWifi />, label: "WiFi" },
-                { icon: <FaSeedling />, label: "Garden" },
-              ].map((item, idx) => (
+              {
+              // [
+              //   { icon: <FaSnowflake className="text-black" />, label: "Air Conditioner" },
+              //   { icon: <FaCar />, label: "Private Parking" },
+              //   { icon: <FaFire />, label: "Barbeque (Chargeable)" },
+              //   { icon: <FaHotjar />, label: "Microwave" },
+              //   { icon: <FaCouch />, label: "Sofa" },
+              //   { icon: <FaUtensils />, label: "Dining Table" },
+              //   { icon: <FaTv />, label: "Flat Screen TV" },
+              //   { icon: <FaDoorClosed />, label: "Wardrobe" },
+              //   { icon: <FaSnowflake />, label: "Refrigerator" },
+              //   { icon: <FaChair />, label: "Outdoor Furniture" },
+              //   { icon: <FaWifi />, label: "WiFi" },
+              //   { icon: <FaSeedling />, label: "Garden" },
+              // ]
+              property.amenities && property.amenities.map((item, idx) => (
                 <div
                   key={idx}
                   className="flex flex-col items-center text-center text-xs"
                 >
-                  <div className="text-xl font-black">{item.icon}</div>
-                  <div className="mt-1">{item.label}</div>
+                  <div className="text-xl font-black"><DotSquareIcon/></div>
+                  <div className="mt-1">{item}</div>
                 </div>
               ))}
             </div>

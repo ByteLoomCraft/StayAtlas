@@ -27,7 +27,6 @@ const Header = () => {
   const navigate = useNavigate();
 
   async function logoutUser() {
-    console.log("Logout clicked");
     try {
       const response = await axios.post("/v1/users/logout");
       console.log("Logout response:", response.data);
@@ -97,7 +96,7 @@ const Header = () => {
               </div>
 
               <div className="relative group">
-                <button className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1">
+                <button onClick={() => navigate("/exclusive")} className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1">
                   EXCLUSIVE <span className="text-xs">▼</span>
                 </button>
                 <div className="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 bg-white text-gray-800 min-w-[180px] shadow-xl rounded-xl overflow-hidden mt-2 z-40">

@@ -8,8 +8,10 @@ import {
   updateVilla,
   deleteVilla,
   checkVillaAvailability,
-  updateApprovalStatus
+  updateApprovalStatus,
+  villaExlusiveStatus
 } from "../controllers/villa.controller.js";
+import { mark } from "framer-motion/client";
 
 const router = express.Router();
 
@@ -22,5 +24,6 @@ router.get("/:id/availability", checkVillaAvailability); // ---------- Public Ro
 router.patch("/:id/approval", updateApprovalStatus); // ---------- Admin Routes ----------
 router.put("/:id", updateVilla); // ---------- Admin Routes ----------
 router.delete("/:id", deleteVilla); // ---------- Admin Routes ----------
+router.post("/admin/:id/exlusiveStatus", villaExlusiveStatus); // ---------- Admin Routes ----------
 
 export default router;

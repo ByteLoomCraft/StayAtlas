@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-
+import axios from "../utils/axios"
 import image1 from '../assets/bdroom2.jpg'
 import image2 from '../assets/bdroom.jpg'
 import image3 from '../assets/frontv.jpg'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import { Loader } from "lucide-react";
 
 const ExclusiveInfo = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -12,31 +14,33 @@ const ExclusiveInfo = () => {
     const [mouseStart, setMouseStart] = useState(null);
     const [isMouseDown, setIsMouseDown] = useState(false);
     const navigate = useNavigate()
+    const [property,setProperty] = useState(null)
+    const {id} = useParams()
 
-    const property = {
-          id: 1,
-          name: "Silva Heritage, South Goa Pet Pool Villa",
-          location: "Benaulim, India",
-          beds: 5,
-          baths: 5,
-          guests: 10,
-          price: 29999,
-          rating: 5.0,
-          image:[
-            image1,image2,image3
-          ]
-     }
+    // const property = {
+    //       id: 1,
+    //       name: "Silva Heritage, South Goa Pet Pool Villa",
+    //       location: "Benaulim, India",
+    //       beds: 5,
+    //       baths: 5,
+    //       guests: 10,
+    //       price: 29999,
+    //       rating: 5.0,
+    //       image:[
+    //         image1,image2,image3
+    //       ]
+    //  }
 
     // Auto slide functionality
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentImageIndex(prevIndex => 
-                prevIndex === property.image.length - 1 ? 0 : prevIndex + 1
+                prevIndex === property.images.length - 1 ? 0 : prevIndex + 1
             );
         }, 5000); // Change image every 5 seconds
         
         return () => clearInterval(interval);
-    }, [property.image.length]);
+    }, [property?.images.length]);
 
     // Touch event handlers for swipe
     const onTouchStart = (e) => {
@@ -102,10 +106,35 @@ const ExclusiveInfo = () => {
         setIsMouseDown(false);
     };
 
+    useEffect(() => {
+      async function fetchExcluisve(){
+        try{
+          const {data} = await axios.get(`/v1/villas/${id}`)
+          
+          if(data.statusCode!==200){
+            toast.error("No Exclusive Villa Data Found")
+          }else{
+            setProperty(data.data)
+          }
+        }catch(error){
+          console.error("Error fetching exclusive data:", error);
+        }
+      }
+      fetchExcluisve()
+    },[])
+
+    if(property==null){
+      return <div>
+        <h1 className="text-2xl font-bold text-center mt-10"><Loader className="animate-spin"/>Loading...</h1>
+      </div>
+    }
+
+    // console.log(property)
+
   return (
     <>
     <div className="w-vw bg-[#F5F5F5] h-225 md:h-215">
-    <div className="absolute h-full w-full flex justify-center items-center">
+    <div className="absolute h-full bg-[#F5F5F5] md:bg-transparent w-full flex justify-center items-center">
         <div className="backdrop-blur-[17px] h-auto w-90 ">
           <div className=" p-2"
             onTouchStart={onTouchStart}
@@ -116,7 +145,7 @@ const ExclusiveInfo = () => {
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseLeave}
           >
-            <img src={property.image[currentImageIndex]} alt="" className="h-1/2 overflow-hidden mt-40 md:mt-0" />
+            {/* <img src={property.images[currentImageIndex]} alt="" className="h-1/2 overflow-hidden mt-40 md:mt-0" /> */}
           </div>
             <div className="p-6 ">
               <h3 className="text-lg font-semibold text-gray-900 p-4">
@@ -127,17 +156,29 @@ const ExclusiveInfo = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {property.location}
+                {property.address.city}
               </p>
 
-              <div className="text-sm text-gray-700 mb-3">
+              {/* <div className="text-sm text-gray-700 mb-3">
                 {property.beds} Beds • {property.baths} Baths • {property.guests} Guests
+              </div> */}
+              <div className="text-sm text-gray-700 mb-3 flex space-x-1">
+                {
+                  property?.amenities.length > 0 && (
+                    property.amenities.map((amenity, index) => (
+                      <div >
+                        {/* {amenity} {index < property.amenities.length - 1 && "•"} */}
+                        {(index > 3) ? "" : `${amenity} `} {index < 3 && "•"}
+                      </div>
+                    ))
+                  )
+                }
               </div>
 
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-base font-semibold text-gray-900">
-                    ₹{property.price}
+                    ₹{property.pricePerNight.$numberDecimal}
                     <span className="text-sm text-gray-500"> /night</span>
                   </p>
                 </div>
@@ -148,19 +189,19 @@ const ExclusiveInfo = () => {
                   <span className="ml-1 text-sm font-medium">{property.rating}</span>
                 </div>
               </div>
-              <div className="h-50 md:h-0 pt-2 overflow-auto md:overflow-hidden w-full">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique voluptatum facere minima est, sapiente ex quas quod dicta placeat dolorum ipsa, quidem odit ea non in totam. Maxime quas quis natus iure et non asperiores praesentium mollitia exercitationem! Velit excepturi temporibus, molestiae quo eligendi error placeat aliquid nemo commodi ut vel? Atque ducimus omnis est iusto! Soluta maiores officiis culpa quisquam accusantium eius atque repudiandae at facere fuga! Blanditiis veritatis tempore molestias possimus aut, aperiam in aliquam provident quo voluptates tenetur porro asperiores cumque ab voluptatem nulla, corporis, nobis vel?
+              <div className="h-50 md:h-0 pt-5 overflow-auto md:overflow-hidden w-full">
+                {property.description}
               </div>
 
-              <button onClick={() => navigate("/booking")} className="w-full mt-6 cursor-pointer bg-black text-white py-2.5 rounded-lg text-sm font-medium hover:opacity-70 transition">
+              <button onClick={() => navigate(`/booking/${id}`)} className="w-full mt-6 cursor-pointer bg-black text-white py-2.5 rounded-lg text-sm font-medium hover:opacity-70 transition">
                 Book Now
               </button>
             </div>
         </div>
     </div>
     <div  className="h-0 md:h-full p-0 m-0 flex object-cover ">
-    <div className="w-[60%] overflow-hidden md:overflow-visible pl-15 pr-80 py-15 bg-gray-100">
-   <div className="font-custom text-slate-600 space-y-3 h-full w-full">
+    <div className=" w-0 md:w-[50%]  overflow-hidden md:overflow-visible pl-15 pr-0 md:pr-50 py-15 bg-gray-100">
+   <div className="font-custom  text-slate-600 space-y-3 h-full w-full">
     
     {/* Property Name */}
     <h1 className="text-4xl font-bold leading-snug text-slate-700">{property.name}</h1>
@@ -186,24 +227,35 @@ const ExclusiveInfo = () => {
           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
         />
       </svg>
-      <span>{property.location}</span>
+      <span>{property.address.city}</span>
     </div>
 
-    {/* Bed/Bath/Guest Info */}
+    {/* Bed/Bath/Guest Info
     <div className="text-2xl text-slate-700 font-semibold py-2">
       {property.beds} Beds &bull; {property.baths} Baths &bull; {property.guests} Guests
+    </div> */}
+    <div className="text-lg text-gray-700 mb-3 flex space-x-1">
+      {
+        property?.amenities.length > 0 && (
+          property.amenities.map((amenity, index) => (
+            <div >
+              {amenity} {index < property.amenities.length - 1 && "•"}
+            </div>
+          ))
+        )
+      }
     </div>
 
     {/* Price */}
     <div className="text-xl font-semibold text-slate-800 py-2">
-      ₹{property.price.toLocaleString()}
+      ₹{property.pricePerNight.$numberDecimal}
       <span className="text-sm font-normal text-gray-500"> / night</span>
     </div>
     <div className="text-2xl font-semibold text-slate-800">
       Description
     </div>
     <div className="text-xl overflow-auto w-full h-[50%]">
-      Lorem ipsum, dolor sit amet consectetur adipisicing elit. Pariatur nulla, illo mollitia exercitationem ipsa corporis magnam similique optio voluptatem debitis hic quos libero iste blanditiis dolorum culpa fuga, enim, nesciunt dolores in id. Incidunt laboriosam odit, est facere saepe corrupti quos rerum accusantium ducimus maiores delectus minus doloremque illum officiis. Assumenda nam accusamus, nesciunt unde maxime debitis natus, voluptates eum officiis enim et corrupti modi repudiandae minima ratione culpa beatae!
+      {property.description}
     </div>
 
       </div>
@@ -218,7 +270,7 @@ const ExclusiveInfo = () => {
           onMouseUp={onMouseUp}
           onMouseLeave={onMouseLeave}
         >
-            <img src={property.image[currentImageIndex]} className="h-0 md:h-215" alt="" />
+          <img src={property.images[currentImageIndex]} className="h-0 md:h-215" alt="" />
         </div>
     </div>
     </div>

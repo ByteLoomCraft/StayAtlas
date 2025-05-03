@@ -37,7 +37,7 @@ const createVilla = asyncHandler(async (req, res) => {
 // =======================================================
 
 const getAllApprovedVillas = asyncHandler(async (req, res) => {
-  const villas = await Villa.find({ isDeleted: { $ne: true }, approvalStatus: "approved" });
+  const villas = await Villa.find({ isDeleted: { $ne: true }, approvalStatus: "approved" }).select("-isDeleted -location_coordinates -priceHistory -approvalComment -approvalStatus")
 
   return res.status(200).json(
     new ApiResponse(200, villas, "List of approved Villas")
@@ -45,7 +45,7 @@ const getAllApprovedVillas = asyncHandler(async (req, res) => {
 });
 
 // =======================================================
-// @desc   Get all Villas (Admin)
+// @desc   Get all Villas (Admin)  
 // @route  GET /api/v1/villas/admin
 // =======================================================
 
@@ -222,6 +222,34 @@ const updateApprovalStatus = asyncHandler(async (req, res) => {
   );
 });
 
+
+const villaExlusiveStatus = asyncHandler(async (req, res) => {
+  try{
+    const {id} = req.params;
+    const {exclusiveStatus} = req.body;
+    const villa = await Villa.findById(id);
+    if (!villa) {
+      throw new ApiError(404, "Villa not found");
+    }
+    if(villa.isDeleted){
+      throw new ApiError(404, "Villa not found");
+    }
+    if(villa.isTrending === exclusiveStatus){
+      return res.status(200).json(
+        new ApiResponse(200, villa, "Villa already has the requested exclusive status")
+      );
+    }
+    villa.isTrending = exclusiveStatus;
+    await villa.save();
+    return res.status(200).json(
+      new ApiResponse(200, villa, `Villa exclusive status updated to ${exclusiveStatus}`)
+    );
+  }
+  catch (error) {
+    throw new ApiError(500, "Internal Server Error", error.message);
+  }
+})
+
 export {
   createVilla,
   getAllApprovedVillas,
@@ -231,5 +259,6 @@ export {
   updateVilla,
   deleteVilla,
   checkVillaAvailability,
-  updateApprovalStatus
+  updateApprovalStatus,
+  villaExlusiveStatus
 };
