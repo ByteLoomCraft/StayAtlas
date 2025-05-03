@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { type } from "os";
+import { date } from "zod";
 
 const addressSchema = new mongoose.Schema({
   street: String,
@@ -9,8 +11,8 @@ const addressSchema = new mongoose.Schema({
 }, { _id: false });
 
 const availabilitySchema = new mongoose.Schema({
-  start: { type: Date, required: true },
-  end: { type: Date, required: true },
+  start: { type: Date, default: null },
+  end: { type: Date, default: null },
   isAvailable: { type: Boolean, default: true },
 }, { _id: false });
 
@@ -27,8 +29,14 @@ const villaSchema = new mongoose.Schema({
     type: [Number],
     required: true,
     validate: {
-      validator: v => v.length === 2,
-      message: props => `${props.value} must be [longitude, latitude]`
+      validator: v =>
+        Array.isArray(v) &&
+        v.length === 2 &&
+        typeof v[0] === "number" &&
+        typeof v[1] === "number" &&
+        v[0] >= -180 && v[0] <= 180 &&  // longitude
+        v[1] >= -90 && v[1] <= 90,     // latitude
+      message: props => `${props.value} must be a valid [longitude, latitude] array`
     }
   },
   images: [String],
@@ -46,7 +54,7 @@ const villaSchema = new mongoose.Schema({
   promotionText: {
     type: String
   },
-  isTrending: {
+  isExclusive: {
     type: Boolean,
     default: false
   },
@@ -67,12 +75,28 @@ const villaSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
+  rejectedReason:{
+    type:String,
+    default:""
+  },
   slug: {
     type: String,
     unique: true,
     lowercase: true
-  }
-}, { timestamps: true });
+  },
+  approvedAt: {
+    type:Date,
+    default:null
+  },
+  approvedBy:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+  updatedBy:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User"
+  },
+}, { timestamps: true ,versionKey:false });
 
 villaSchema.pre("save", function(next) {
   this.slug = this.name.toLowerCase().replace(/ /g, "-");

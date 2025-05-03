@@ -29,7 +29,7 @@ const bookingSchema = new mongoose.Schema(
       pets: { type: Number, default: 0 },
       children: { type: Number, default: 0 },
     },
-
+    
     pricePerNightAtBooking: {
       type: mongoose.Types.Decimal128,
       required: true,
@@ -77,6 +77,7 @@ const bookingSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    versionKey:false
   }
 );
 
