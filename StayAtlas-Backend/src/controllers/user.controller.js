@@ -68,7 +68,7 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
 
-    const {accessToken,refreshToken} = generateAccessAndRefreshToken(createdUser._id)
+    const {accessToken,refreshToken} = await generateAccessAndRefreshToken(createdUser._id)
 
     const isProduction = process.env.NODE_ENV === "production";
     const cookieOptions = {
@@ -257,15 +257,6 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
-const getUser  = asyncHandler(async(req, res) => {
-    return res
-    .status(200)
-    .json(new ApiResponse(
-        200,
-        req.user,
-        "User fetched successfully"
-    ))
-})
 
 const updateUserName = asyncHandler(async(req,res)=>{
     const {newFirstName, newLastName} = req.body

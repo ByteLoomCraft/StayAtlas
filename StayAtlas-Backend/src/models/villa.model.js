@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { type } from "os";
+import { date } from "zod";
 
 const addressSchema = new mongoose.Schema({
   street: String,
@@ -71,6 +73,9 @@ const villaSchema = new mongoose.Schema({
     type: String,
     unique: true,
     lowercase: true
+  },
+  approvedAt: {
+    type:date
   }
 }, { timestamps: true });
 
