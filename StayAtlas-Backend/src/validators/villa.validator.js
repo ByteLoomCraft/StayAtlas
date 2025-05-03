@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const addressSchema = z.object({
   street: z.string().min(1),
+  landmark: z.string().optional(),
   city: z.string().min(1),
   state: z.string().min(1),
   country: z.string().min(1),
@@ -15,18 +16,23 @@ export const availabilitySchema = z.object({
 });
 
 export const createVillaSchema = z.object({
-  ownerId: z.string().min(1),
+  ownerId:z.string().min(1),
   name: z.string().min(1),
   description: z.string().optional(),
   address: addressSchema,
-  location_coordinates: z.array(z.number()).length(2),
-  images: z.array(z.string().url()).optional(),
-  amenities: z.array(z.string()).optional(),
-  pricePerNight: z.coerce.number().positive(),
-  category: z.array(z.string()).optional(),
-  availability: z.array(availabilitySchema).optional(),
-  discountPercent: z.number().min(0).max(100).optional(),
-  promotionText: z.string().optional()
+  images: z.array(z.string().url()).min(4),
+  amenities: z.array(z.string()).min(4),
+  villaType:z.string().min(1),
 });
+
+export const adminUpdateVillaSchema = createVillaSchema.extend({
+  location_coordinates: z.array(z.number()).length(2),
+  pricePerNight:z.number().min(1),
+  category:z.string().min(1),
+  discountPercent:z.number().optional(),
+  promotionText:z.string().optional(),
+  isExclusive:z.boolean(),
+  approvalComment:z.string().optional()
+})
 
 export const updateVillaSchema = createVillaSchema.partial();

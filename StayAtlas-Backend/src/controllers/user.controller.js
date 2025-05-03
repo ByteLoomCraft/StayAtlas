@@ -150,7 +150,7 @@ const loginUser = asyncHandler(async(req,res) =>{
 })
 
 
-export const getUser = async (req,res) => {
+const getUser = async (req,res) => {
     try{
         res.status(200).json({
             user: req.user,

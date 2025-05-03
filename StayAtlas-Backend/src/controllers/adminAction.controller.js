@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { getPagination } from "../utils/paginate";
-import { createVillaSchema } from "../validators/villa.validator";
+import { adminUpdateVillaSchema } from "../validators/villa.validator";
 
 const getAllPendingVillas = asyncHandler(async(req,res)=>{
     const {page, limit, skip} = getPagination(req)
@@ -142,7 +142,7 @@ const getAllRejectedVillas = asyncHandler(async(req,res)=>{
 })
 
 const reviewPendingVillas = asyncHandler(async(req,res)=>{
-    const { villaId } = req.params;
+    const { id:villaId } = req.params;
 
     if (!villaId) {
         throw new ApiError(400,"Villa id is required")
@@ -170,7 +170,7 @@ const reviewPendingVillas = asyncHandler(async(req,res)=>{
 })
 
 const ApprovePendingVillas = asyncHandler(async(req,res)=>{
-    const { villaId } = req.params;
+    const { id:villaId } = req.params;
     if (!villaId) {
         throw new ApiError(400,"Villa id is required")
     }
@@ -187,15 +187,20 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Villa is already approved")
     }
     //review and edit the details before approve
-    try {
-        validatedData = createVillaSchema.parse(req.body);
-    } catch (error) {
-        throw new ApiError(400, "Validation failed", error.errors);
+    const parsed = adminUpdateVillaSchema.safeParse(req.body)
+    if (!parsed.success) {
+        const errorMessage = parsed.error.issues.map(e => e.message).join(", ");
+        throw new ApiError(400, errorMessage);
     }
-    console.log("validatedData:",validatedData)
+
+    const validParsedData = parsed.data
+
+    console.log("validatedData:",validParsedData)
+    Object.assign(villa,validParsedData)
     // Approve the villa
     villa.approvalStatus = "approved";
     villa.approvedAt = new Date();
+    villa.approvedBy = req.user._id;
     await villa.save();
 
     // Check if it's the user's first approved villa
@@ -223,9 +228,7 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
 
 //for modification of prise discount prise images etc
 const editVillaDetailsById = asyncHandler(async (req, res) => {
-    const villaId = req.params.id; 
-    const { description, pricePerNight, discountPercent, promotionText, images } = req.body;
-  
+    const {id:villaId} = req.params; 
     if (!villaId) {
       throw new ApiError(400, "villaId is required!");
     }
@@ -237,11 +240,15 @@ const editVillaDetailsById = asyncHandler(async (req, res) => {
     }
   
     // Update the villa details
-    if (description) villa.description = description;
-    if (pricePerNight) villa.pricePerNight = pricePerNight; 
-    if (discountPercent) villa.discountPercent = discountPercent;
-    if (promotionText) villa.promotionText = promotionText; 
-    if (images && Array.isArray(images)) villa.images = images; 
+    const parsed = adminUpdateVillaSchema.safeParse(req.body)
+    if(!parsed.success){
+        const errorMessage = parsed.error.issues.map(e=>e.message).join(',')
+        throw new ApiError(400,errorMessage)
+    }
+    const villaUpdatedData = parsed.data
+
+    Object.assign(villa, villaUpdatedData)
+    villa.updatedBy = req.user._id
     await villa.save();
   
     // Return the updated villa details in the response
@@ -257,7 +264,7 @@ const editVillaDetailsById = asyncHandler(async (req, res) => {
   });
   
 const deleteVilla = asyncHandler(async(req,res)=>{
-    const villaId = req.params.id; // Assuming the villa ID is passed as a URL parameter
+    const {id:villaId} = req.params; 
 
     // Find the villa by its ID
     const villa = await Villa.findById(villaId);
@@ -268,6 +275,7 @@ const deleteVilla = asyncHandler(async(req,res)=>{
   
     // Soft Delete: Set the villa as deleted
     villa.isDeleted = true;
+    villa.rejectedReason = req.body.rejectedReason
     await villa.save();
   
     return res
@@ -282,7 +290,7 @@ const deleteVilla = asyncHandler(async(req,res)=>{
 })
 
 //totalvilla approved pending rejected
-const totalCountOfVillas = asyncHandler(async(req,res)=>{
+const totalCountOfVillasByApprovalStatus = asyncHandler(async(req,res)=>{
     // Get total count of villas for each status
     const approvedCount = await Villa.countDocuments({
         approvalStatus: "approved",
@@ -299,6 +307,7 @@ const totalCountOfVillas = asyncHandler(async(req,res)=>{
         isDeleted: false,
       });
   
+      const totalVillaOnStayAtlas = approvedCount+pendingCount+rejectedCount
       // Return the counts as a response
       return res
       .status(200)
@@ -309,6 +318,7 @@ const totalCountOfVillas = asyncHandler(async(req,res)=>{
                 approved: approvedCount,
                 pending: pendingCount,
                 rejected: rejectedCount,
+                totalVillas: totalVillaOnStayAtlas
             },
             "success"
         )
@@ -316,7 +326,7 @@ const totalCountOfVillas = asyncHandler(async(req,res)=>{
 })
 
 const getUserCount = asyncHandler(async(req,res)=>{
-
+    
 })
 
 
@@ -325,7 +335,10 @@ export {
     getAllApprovedVillas,
     getAllRejectedVillas,
     reviewPendingVillas,
-    ApprovePendingVillas
+    ApprovePendingVillas,
+    editVillaDetailsById,
+    deleteVilla,
+    totalCountOfVillasByApprovalStatus,
     
 
 }
