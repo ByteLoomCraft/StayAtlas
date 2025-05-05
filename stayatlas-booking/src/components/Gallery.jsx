@@ -23,45 +23,65 @@ export default function Gallery({ photos = [] }) {
     trackMouse: true,
   });
 
-  // Render placeholders for no images
+  // No images placeholder
   if (photos.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
-        <span className="text-gray-500">No Images by Villa Owner</span>
+        <span className="text-gray-500">No Images available</span>
       </div>
     );
   }
 
-  // Decide how many to show in preview (max 3)
+  // Limit preview to max 3
   const previewCount = Math.min(photos.length, 3);
   const previewPhotos = photos.slice(0, previewCount);
 
+  // Responsive container classes per count
+  let containerClasses = "";
+  if (previewCount === 1) {
+    // Single image full width
+    containerClasses = "w-full max-w-3xl mx-auto";
+  } else if (previewCount === 2) {
+    // Stack on mobile, side-by-side on md
+    containerClasses = "flex flex-col md:flex-row gap-2.5 w-full max-w-4xl mx-auto";
+  } else if (previewCount === 3) {
+    // One large vertical and two stacked
+    containerClasses = "grid grid-cols-1 gap-2.5 w-full max-w-5xl mx-auto md:grid-cols-[2fr_1fr] md:grid-rows-2 md:max-h-[600px]";
+  }
+
   return (
-    <div className="flex justify-center bg-white py-5 px-4 mx-auto max-w-[2560px]">
-      <div className="grid gap-2.5 md:aspect-[16/9] md:max-h-[600px]"
-          style={{ gridTemplateColumns: getGridCols(previewCount) }}>
-        {previewPhotos.map((photo, idx) => (
-          <div
-            key={idx}
-            className={getItemClasses(previewCount, idx)}
-            onClick={() => openModal(idx)}
-          >
-            <img
-              src={photo}
-              alt={`Image ${idx + 1}`}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 rounded-lg"
-            />
-            {idx === 0 && photos.length > 3 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); openModal(0); }}
-                className="absolute left-5 bottom-5 bg-white text-gray-700 px-4 py-2 rounded-md flex items-center gap-2 hover:bg-gray-100 transition-all duration-200"
-              >
-                <FaImage />
-                View Photos
-              </button>
-            )}
-          </div>
-        ))}
+    <div className="flex justify-center bg-white py-5 px-4">
+      <div className={containerClasses}>
+        {previewPhotos.map((photo, idx) => {
+          // For 3 images, span first image across two rows
+          const spanClass = previewCount === 3 && idx === 0 ? 'md:row-span-2' : '';
+          return (
+            <div
+              key={idx}
+              className={`relative overflow-hidden rounded-lg cursor-pointer ${spanClass}`}
+              onClick={() => openModal(idx)}
+            >
+              <img
+                src={photo}
+                alt={`Image ${idx + 1}`}
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+
+              {/* "View Photos" button on first image when more than 3 photos exist */}
+              {idx === 0 && photos.length > 3 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openModal(0);
+                  }}
+                  className="absolute left-5 bottom-5 bg-white text-gray-700 px-4 py-2 rounded-md flex items-center gap-2 hover:bg-gray-100 transition-all duration-200"
+                >
+                  <FaImage /> View Photos
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {isModalOpen && (
@@ -107,18 +127,4 @@ export default function Gallery({ photos = [] }) {
       )}
     </div>
   );
-}
-
-// Helper to compute grid columns
-function getGridCols(count) {
-  if (count === 1) return "1fr";
-  if (count === 2) return "1fr 1fr";
-  if (count === 3) return "3fr 1fr 1fr";
-  return "1fr 1fr 1fr";
-}
-
-// Helper to assign item classes
-function getItemClasses(count, idx) {
-  // All items simply overflow-hidden clickable
-  return "relative overflow-hidden cursor-pointer";
 }
