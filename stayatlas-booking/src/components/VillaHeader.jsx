@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import ShareModel from './ShareModel';
 import frontVilla from '../assets/frontv.jpg'; // Update path as needed
 
-function VillaHeader() {
+function VillaHeader({title}) {
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   return (
     <div className="villa-header-wrapper w-full px-6 py-6 relative">
       <div className="villa-header flex justify-between items-center">
       <h1 className="text-gray-900 px-4 md:px-20 text-xl md:text-2xl font-bold font-montserrat">
-      Luxury - 3 BHK - AC - Pool Villa - in Panvel
+      {title}
         </h1>
         <button
           onClick={() => setIsShareOpen(true)}

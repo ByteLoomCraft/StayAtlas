@@ -17,7 +17,7 @@ const router = express.Router();
 
 
 //  Public: Check villa availability
-router.get('/check-availability', checkBookingAvailability);
+router.get('/check-availability/:villaId',verifyJWT, checkBookingAvailability);
 
 //  Authenticated users only
 router.post('/', verifyJWT, createBooking);

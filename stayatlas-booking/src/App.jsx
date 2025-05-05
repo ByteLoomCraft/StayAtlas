@@ -76,7 +76,7 @@ function App() {
           element:(<Login/>)
         },
         {
-          path:"/booking",
+          path:"/booking/:id",
           element:(<ProtectedRoutes><Booking/></ProtectedRoutes>)
         },
         {

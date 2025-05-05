@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
   FaHouse,
   FaPersonWalkingLuggage,
@@ -17,8 +17,13 @@ import {
 import { FaHotjar } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { DoorClosed, Dot, DotSquareIcon } from "lucide-react";
+import toast from "react-hot-toast";
+import axios from "../utils/axios"
+import { useParams } from "react-router-dom";
 
-const VilaDetail = () => {
+const VilaDetail = ({property=null}) => {
+  const {id} = useParams()
   const [guestDropdownOpen, setGuestDropdownOpen] = useState(false);
   const [adults, setAdults] = useState(1);
   const [pets, setPets] = useState(0);
@@ -26,6 +31,135 @@ const VilaDetail = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const [couponCode, setCouponCode] = useState("");
+  const [bookNow, setBookNow] = useState(false);
+  const [charges, setCharges] = useState({
+    tariff: 5000,
+    gst: 18,
+    discount: 10,
+    totalNights:0,
+    totalCost: 5000
+  })
+
+  useEffect(() => {
+    if (property !== null && startDate && endDate) {
+      // Calculate the number of nights
+      const timeDiff = Math.abs(endDate - startDate);
+      const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  
+      const baseCost = diffDays * property?.pricePerNight?.$numberDecimal;
+  
+      const discountAmount = (charges.discount / 100) * baseCost;
+  
+      const costAfterDiscount = baseCost - discountAmount;
+
+      const gstAmount = (charges.gst / 100) * costAfterDiscount;
+  
+      // Calculate total cost
+      const totalCost = costAfterDiscount + gstAmount ;
+  
+      // Update the charges state with calculated values
+      setCharges((prevCharges) => ({
+        ...prevCharges,
+        totalNights: diffDays,
+        totalCost: totalCost,
+      }));
+    } else {
+      // Set default values if dates or property are missing
+      setCharges((prevCharges) => ({
+        ...prevCharges,
+        totalNights: 0,
+        discount:property.discountPercent || 0,
+        totalCost: 0,
+      }));
+    }
+  }, [startDate, endDate, property]);
+
+  useEffect(() => {
+    if(startDate && endDate){
+      async function fetchDateAvailability() {
+        try{
+          const response = await axios.get(`/v1/bookings/check-availability/${id}?checkIn=${startDate.toISOString()}&checkOut=${endDate.toISOString()}`);
+          console.log("Dates are available for booking", response.data.data);
+          if(response.data.data.isAvailable){
+            // console.log("Dates are available for booking", response.data.data);
+            toast.success("Dates are available for booking");
+            setBookNow(true)
+          }else{
+            toast.error("Dates are not available for booking");
+            setBookNow(false)
+          }
+        }catch(error){
+          toast.error("Dates are not available for booking");
+          console.error("Dates are not available for booking", error);
+          setBookNow(false)
+        }
+      }
+      fetchDateAvailability()
+      
+    }
+  },[startDate, endDate])
+
+  // useEffect(() => {
+  //   if (property!==null&&startDate && endDate) {
+  //     const timeDiff = Math.abs(endDate - startDate);
+  //     const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  //     setCharges((prevCharges) => ({
+  //       ...prevCharges,
+  //       totalNights: diffDays,
+  //     }));
+  //   } else {
+  //     setCharges((prevCharges) => ({
+  //       ...prevCharges,
+  //       totalNights: 1,
+  //     }));
+  //   }
+  // },[startDate, endDate]);
+
+  const handleBooking = async() => {
+    const timeDiff = Math.abs(endDate - startDate);
+    const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    console.log("Total Nights:", diffDays);
+    try{
+      const bookingData = {
+        villa:id,
+        guests:adults+pets+children,
+        adults,
+        pricePerNightAtBooking:property?.pricePerNight?.$numberDecimal,
+        pets,
+        children,
+        checkIn:startDate,
+        checkOut:endDate,
+        nights:diffDays,
+        discountPercentApplied:charges.discount,
+        couponCode
+      };
+      // console.log("Booking Data:", bookingData);
+      const response = await axios.post("/v1/bookings", bookingData);
+      // console.log("Booking Response:", response.data);
+      if(response.data.statusCode===201){
+        toast.success("Booking Successful");
+        setBookNow(false)
+        setStartDate(null)
+        setEndDate(null)
+        setAdults(1)
+        setPets(0)
+        setChildren(0)
+      }else{
+        toast.error("Booking Failed");
+      }
+    }catch(error){
+      console.error("Error fetching exclusive data:", error);
+    }
+  }
+
+  if(property===null){
+    return <div>
+      <h1 className="flex justify-center items-center h-screen"><Loader className=" font-extrabold size-11 animate-spin"/></h1>
+    </div>
+  }
+
+  console.log(property)
 
   return (
     <div className="font-custom min-h-screen flex items-center justify-center bg-[#f8f7f6] text-black p-6">
@@ -33,22 +167,23 @@ const VilaDetail = () => {
         <div className="md:w-2/3 space-y-6">
           <div>
             <h1 className="text-3xl font-bold">
-              Stayatlas - Highland Villa 8BHK
+              {property.name}
             </h1>
-            <p className="text-lg">Panchgani, Maharashtra</p>
+            <p className="text-lg">{`${property?.address?.city}, ${property?.address?.country}`}</p>
           </div>
 
           <div>
             <p className="text-sm">
-              Post Bhilar Taluka Mahabaleshwar District Satara Landmark: Behind
-              shivnya palace Panchgani Maharashtra - 412805
+              {
+               `${property?.address?.street}, ${property?.address?.city}, ${property?.address?.state}, ${property?.address?.country}, ${property?.address?.zipcode}` 
+              }
             </p>
             <p className="mt-2 font-semibold">5.0 ★</p>
           </div>
 
           <div className="flex flex-wrap gap-3">
             <div className="flex items-center gap-2 border px-3 py-1 rounded-full text-sm">
-              <FaHouse /> 8BHK
+              <FaHouse /> {property.numberOfRooms} BHK
             </div>
             <div className="flex items-center gap-2 border px-3 py-1 rounded-full text-sm">
               <FaPersonWalkingLuggage /> 10 MAX GUEST
@@ -56,18 +191,17 @@ const VilaDetail = () => {
             <div className="flex items-center gap-2 border px-3 py-1 rounded-full text-sm">
               <FaSink /> 8 BATH
             </div>
+            <div className="flex items-center gap-2 border px-3 py-1 rounded-full text-sm">
+              <DoorClosed /> {property.numberOfRooms} ROOMS
+            </div>
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold">Property Description</h2>
+            <h2 className="text-2xl font-bold pb-2">Property Description</h2>
             <p className="text-sm leading-relaxed">
-              This villa is located in the most peaceful region of Maharashtra.
-              Our 8BHK Highland Villa in Panchgani offers stunning views and
-              luxurious amenities. It is elegantly furnished with comfortable
-              seating, a serene pool, and a relaxing patio. Perfect for hosting
-              events or enjoying a getaway with family and friends. Features
-              include spacious bedrooms, a large lawn, a fully-equipped kitchen,
-              king-size beds, and pet-friendly accommodation.
+              {
+                property.description
+              }
             </p>
           </div>
 
@@ -83,26 +217,28 @@ const VilaDetail = () => {
           <div>
             <h2 className="text-2xl font-bold">Amenities</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-              {[
-                { icon: <FaSnowflake className="text-black" />, label: "Air Conditioner" },
-                { icon: <FaCar />, label: "Private Parking" },
-                { icon: <FaFire />, label: "Barbeque (Chargeable)" },
-                { icon: <FaHotjar />, label: "Microwave" },
-                { icon: <FaCouch />, label: "Sofa" },
-                { icon: <FaUtensils />, label: "Dining Table" },
-                { icon: <FaTv />, label: "Flat Screen TV" },
-                { icon: <FaDoorClosed />, label: "Wardrobe" },
-                { icon: <FaSnowflake />, label: "Refrigerator" },
-                { icon: <FaChair />, label: "Outdoor Furniture" },
-                { icon: <FaWifi />, label: "WiFi" },
-                { icon: <FaSeedling />, label: "Garden" },
-              ].map((item, idx) => (
+              {
+              // [
+              //   { icon: <FaSnowflake className="text-black" />, label: "Air Conditioner" },
+              //   { icon: <FaCar />, label: "Private Parking" },
+              //   { icon: <FaFire />, label: "Barbeque (Chargeable)" },
+              //   { icon: <FaHotjar />, label: "Microwave" },
+              //   { icon: <FaCouch />, label: "Sofa" },
+              //   { icon: <FaUtensils />, label: "Dining Table" },
+              //   { icon: <FaTv />, label: "Flat Screen TV" },
+              //   { icon: <FaDoorClosed />, label: "Wardrobe" },
+              //   { icon: <FaSnowflake />, label: "Refrigerator" },
+              //   { icon: <FaChair />, label: "Outdoor Furniture" },
+              //   { icon: <FaWifi />, label: "WiFi" },
+              //   { icon: <FaSeedling />, label: "Garden" },
+              // ]
+              property.amenities && property.amenities.map((item, idx) => (
                 <div
                   key={idx}
                   className="flex flex-col items-center text-center text-xs"
                 >
-                  <div className="text-xl font-black">{item.icon}</div>
-                  <div className="mt-1">{item.label}</div>
+                  <div className="text-xl font-black"><DotSquareIcon/></div>
+                  <div className="mt-1">{item}</div>
                 </div>
               ))}
             </div>
@@ -139,14 +275,14 @@ const VilaDetail = () => {
                     <div className="flex gap-2 items-center">
                       <button
                         onClick={() => setter(Math.max(0, value - 1))}
-                        className="border px-2"
+                        className="border px-2 cursor-pointer hover:bg-gray-200"
                       >
                         -
                       </button>
                       <div className="w-6 text-center">{value}</div>
                       <button
                         onClick={() => setter(value + 1)}
-                        className="border px-2"
+                        className="border px-2 cursor-pointer hover:bg-gray-200"
                       >
                         +
                       </button>
@@ -156,7 +292,7 @@ const VilaDetail = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setGuestDropdownOpen(false)}
-                    className="bg-black text-white px-4 py-1 rounded"
+                    className="cursor-pointer bg-black text-white px-4 py-1 rounded"
                   >
                     APPLY
                   </button>
@@ -166,7 +302,7 @@ const VilaDetail = () => {
                       setPets(0);
                       setChildren(0);
                     }}
-                    className="border px-4 py-1 rounded"
+                    className="cursor-pointer border px-4 py-1 rounded"
                   >
                     CLEAR
                   </button>
@@ -195,7 +331,7 @@ const VilaDetail = () => {
                 selectsEnd
                 // startDate={startDate}
                 endDate={endDate}
-                minDate={startDate || tomorrow}
+                minDate={startDate ? new Date(startDate.getTime() + 24 * 60 * 60 * 1000) : tomorrow}
                 placeholderText="Check out"
                 className="w-full px-3 py-2 border rounded"
               />
@@ -204,6 +340,8 @@ const VilaDetail = () => {
 
           <div>
             <input
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
               type="text"
               className="w-full px-3 py-2 border rounded"
               placeholder="Have a Discount Coupon?"
@@ -216,25 +354,25 @@ const VilaDetail = () => {
 
           <table className="w-full text-sm mt-2">
             <tbody>
-              <tr>
+              {/* <tr>
                 <td>Tariff</td>
-                <td className="text-right">₹5000</td>
+                <td className="text-right">₹{charges.tariff}</td>
+              </tr> */}
+              <tr>
+                <td>{charges.totalNights} nights</td>
+                <td className="text-right">₹{charges.totalNights * property?.pricePerNight?.$numberDecimal}</td>
               </tr>
               <tr>
-                <td>Rs. × nights</td>
-                <td className="text-right">₹20000</td>
-              </tr>
-              <tr>
-                <td>Flat 10% off</td>
-                <td className="text-right">-₹2500.00</td>
+                <td>Flat {charges.discount}% off</td>
+                <td className="text-right">-₹{(charges.discount/100) * (charges.totalNights * property?.pricePerNight?.$numberDecimal)}</td>
               </tr>
               <tr>
                 <td>GST (18%)</td>
-                <td className="text-right">+₹4050.00</td>
+                <td className="text-right">+₹{(charges.gst/100) * (charges.totalNights * property?.pricePerNight?.$numberDecimal)}</td>
               </tr>
               <tr className="font-bold">
                 <td>Total Amount</td>
-                <td className="text-right">₹26550.00</td>
+                <td className="text-right">₹{charges.totalCost}</td>
               </tr>
             </tbody>
           </table>
@@ -244,13 +382,13 @@ const VilaDetail = () => {
             given on phone.
           </p>
 
-          <button className="w-full bg-black text-white py-2 rounded font-bold">
+          <button disabled={!bookNow} onClick={handleBooking} className={`cursor-pointer w-full text-white py-2 rounded font-bold ${bookNow ? "bg-black" : "bg-gray-400"}`}>
             BOOK NOW
           </button>
           <button className="w-full border py-2 rounded text-xs font-bold">
             CONTACT YOUR HOST
             <br />
-            +91 8591131447
+            {property.email || "+91 8591131447"}
           </button>
         </div>
       </div>

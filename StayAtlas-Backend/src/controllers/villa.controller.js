@@ -45,7 +45,7 @@ export const updateVilla = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You are not authorized to update this villa");
   }
 
-  const schema = isAdmin ? UpdateAdminVillaSchemaAdminVillaSchema : UpdateOwnerVillaSchema;
+  const schema = isAdmin ? UpdateAdminVillaSchema : UpdateOwnerVillaSchema;
   const validatedData = schema.parse(req.body);
 
   // Owners' updates reset approval status

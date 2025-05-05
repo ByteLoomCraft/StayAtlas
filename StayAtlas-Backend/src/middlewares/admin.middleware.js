@@ -6,7 +6,7 @@ export const isAdmin = (req,res,next)=>{
     throw new ApiError(401,"Unauthorized: User not authenticated")
   }
 
-  if (req.user.role !== 'admin') {
+  if (user.role !== 'admin') {
     throw new ApiError(403,"Forbidden: Admin access only")
   }
 
