@@ -1,82 +1,105 @@
 import mongoose from "mongoose";
 
 const addressSchema = new mongoose.Schema({
-  street: String,
-  city: String,
-  state: String,
-  country: String,
-  zipcode: String,
+  street: { type: String, required: true },
+  landmark: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  country: { type: String, required: true },
+  zipcode: { type: String, required: true },
 }, { _id: false });
 
 const availabilitySchema = new mongoose.Schema({
   start: { type: Date, required: true },
   end: { type: Date, required: true },
-  isAvailable: { type: Boolean, default: true },
+  isAvailable: { type: Boolean, default: true }
 }, { _id: false });
 
 const villaSchema = new mongoose.Schema({
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true
-  },
-  name: { type: String, required: true },
-  description: { type: String },
-  address: addressSchema,
-  location_coordinates: {
-    type: [Number],
     required: true,
-    validate: {
-      validator: v => v.length === 2,
-      message: props => `${props.value} must be [longitude, latitude]`
-    }
   },
-  images: [String],
-  amenities: [String],
+
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+
+  description: {
+    type: String,
+  },
+
+  phoneNumber: {
+    type: String,
+  },
+
+  email: {
+    type: String,
+  },
+
+  numberOfRooms: {
+    type: Number,
+  },
+
+  images: [{
+    type: String,
+  }],
+
+  address: {
+    type: addressSchema,
+    required: true,
+  },
+
+  amenities: [{
+    type: String,
+  }],
+
+  propertyType: {
+    type: String,
+  },
+
   pricePerNight: {
-    type: mongoose.Types.Decimal128,
-    required: true
+    type: Number,
   },
-  category: [String],
+
+  category: [{
+    type: String,
+  }],
+
   availability: [availabilitySchema],
+
   discountPercent: {
     type: Number,
-    default: 0
+    min: 0,
+    max: 100,
   },
+
   promotionText: {
-    type: String
+    type: String,
   },
+
   isTrending: {
     type: Boolean,
-    default: false
+    default: false,
   },
-  isDeleted: {
-    type: Boolean,
-    default: false
-  },
-  priceHistory: [{
-    date: { type: Date, default: Date.now },
-    price: mongoose.Types.Decimal128
-  }],
+
   approvalStatus: {
     type: String,
     enum: ["pending", "approved", "rejected"],
-    default: "pending"
+    default: "pending",
   },
+
   approvalComment: {
     type: String,
-    default: ""
   },
-  slug: {
-    type: String,
-    unique: true,
-    lowercase: true
-  }
-}, { timestamps: true });
 
-villaSchema.pre("save", function(next) {
-  this.slug = this.name.toLowerCase().replace(/ /g, "-");
-  next();
+}, {
+  timestamps: true,
 });
+
+villaSchema.index({ location_coordinates: "2dsphere" });
 
 export const Villa = mongoose.model("Villa", villaSchema);
