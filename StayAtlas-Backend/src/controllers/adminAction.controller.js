@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { getPagination } from "../utils/paginate.js";
-import { adminUpdateVillaSchema } from "../validators/villa.validator.js";
+import { AdminVillaSchema } from "../validators/villa.validator.js";
 
 const getAllPendingVillas = asyncHandler(async(req,res)=>{
     const {page, limit, skip} = getPagination(req)
@@ -155,7 +155,7 @@ const reviewPendingVillas = asyncHandler(async(req,res)=>{
         _id: villaId,
         isDeleted: false,
         approvalStatus:"pending"
-    });
+    }).select("-_id -ownerId");
 
     if (!villa) {
         throw new ApiError(404,"Villa not found")
@@ -179,7 +179,7 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
     }
     const villa = await Villa.findOne({
         _id: villaId,
-        //isDeleted: false
+        isDeleted: false
     });
 
     if (!villa) {
@@ -190,7 +190,7 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Villa is already approved")
     }
     //review and edit the details before approve
-    const parsed = adminUpdateVillaSchema.safeParse(req.body)
+    const parsed = AdminVillaSchema.safeParse(req.body)
     if (!parsed.success) {
         const errorMessage = parsed.error.issues.map(e => e.message).join(", ");
         throw new ApiError(400, errorMessage);
@@ -243,13 +243,29 @@ const editVillaDetailsById = asyncHandler(async (req, res) => {
     }
   
     // Update the villa details
-    const parsed = adminUpdateVillaSchema.safeParse(req.body)
+    const parsed = AdminVillaSchema.safeParse(req.body)
     if(!parsed.success){
         const errorMessage = parsed.error.issues.map(e=>e.message).join(',')
         throw new ApiError(400,errorMessage)
     }
     const villaUpdatedData = parsed.data
-
+    const restrictedFields = [
+        "approvalStatus",
+        "approvalComment",
+        "ownerId",
+        "villaOwner",
+        "_id",
+        "isDeleted",
+        "updatedBy",
+        "phoneNumber",
+        "email"
+      ];
+      
+      restrictedFields.forEach(field => {
+        if (field in villaUpdatedData) {
+          delete villaUpdatedData[field];
+        }
+      });
     Object.assign(villa, villaUpdatedData)
     villa.updatedBy = req.user._id
     await villa.save();
@@ -278,6 +294,7 @@ const deleteVillaById = asyncHandler(async(req,res)=>{
   
     // Soft Delete: Set the villa as deleted
     villa.isDeleted = true;
+    villa.approvalStatus = "rejected"
     villa.rejectedReason = req.body.rejectedReason
     await villa.save();
   

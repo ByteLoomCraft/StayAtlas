@@ -1,29 +1,26 @@
 import express from "express";
 import {
   createVilla,
-  getAllApprovedVillas,
-  getAllVillasAdmin,
-  getVillaById,
-  getVillaByIdAdmin,
   updateVilla,
   deleteVilla,
-  checkVillaAvailability,
-  updateApprovalStatus,
-  villaExlusiveStatus
+  getAllApprovedVillas,
+  getApprovedVillaById,
 } from "../controllers/villa.controller.js";
-import { mark } from "framer-motion/client";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/multer.middleware.js";
+import { canListVilla } from "../middlewares/villaOwner.middleware.js";
+import { parseAddressBody } from "../middlewares/parse.address.middleware.js";
 
 const router = express.Router();
 
-router.get("/", getAllApprovedVillas); // ---------- Public Routes ----------
-router.post("/create", createVilla); // ---------- Public Routes ----------
-router.get("/admin", getAllVillasAdmin); // ---------- Admin Routes ----------
-router.get("/admin/:id", getVillaByIdAdmin); // ---------- Admin Routes ----------
-router.get("/:id", getVillaById); // ---------- Public Routes ----------
-router.get("/:id/availability", checkVillaAvailability); // ---------- Public Routes ----------
-router.patch("/:id/approval", updateApprovalStatus); // ---------- Admin Routes ----------
-router.put("/:id", updateVilla); // ---------- Admin Routes ----------
-router.delete("/:id", deleteVilla); // ---------- Admin Routes ----------
-router.post("/admin/:id/exlusiveStatus", villaExlusiveStatus); // ---------- Admin Routes ----------
+
+
+
+// PROTECTED ROUTES
+router.post("/create-villa", verifyJWT, canListVilla, upload.array('images',10),parseAddressBody,createVilla); // Owner or Admin can create
+router.put("/:id", verifyJWT, updateVilla); // Owner or Admin can update
+router.delete("/:id", verifyJWT, deleteVilla); // Owner or Admin can delete
+router.get("/", verifyJWT, getAllApprovedVillas); // All approved and non-deleted villas
+router.get("/:id", verifyJWT, getApprovedVillaById); // Approved villa by ID
 
 export default router;

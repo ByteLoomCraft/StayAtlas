@@ -16,14 +16,52 @@ const uploadOnCloudinary = async (localFilePath) =>{
             resource_type: "auto",
             folder: "StayAtlasVillaImages"
         })
-        console.log(response)
-        fs.unlink(localFilePath)
+        //console.log(response)
+        if (fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
         return response
     } catch (error) {
         console.error("Cloudinary upload ERROR:",error)
-        fs.unlink(localFilePath)
+        if (fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
         return null
     }
 }
 
-export {uploadOnCloudinary}
+const uploadMultipleImagesParallel = async (filePaths = []) => {
+    const uploadPromises = filePaths.map(path => uploadOnCloudinary(path));
+    const results = await Promise.allSettled(uploadPromises); 
+    //console.log("Result:",results)
+    const successfulUploads = [];
+    const failedFilePaths = [];
+
+    // Separate successes and failures
+    results.forEach((result, index) => {
+    if (result.status === "fulfilled" && result.value) {
+        successfulUploads.push(result.value);
+    } else {
+        failedFilePaths.push(filePaths[index]);
+    }
+    });
+
+    // Optional Retry Logic
+    if (failedFilePaths.length > 0) {
+    console.log(`Retrying ${failedFilePaths.length} failed uploads...`);
+
+    const retryResults = await Promise.allSettled(
+        failedFilePaths.map(path => uploadOnCloudinary(path))
+    );
+
+    retryResults.forEach(result => {
+        if (result.status === "fulfilled" && result.value) {
+        successfulUploads.push(result.value); 
+        }
+    });
+    }
+
+    return successfulUploads
+};
+
+export {uploadMultipleImagesParallel}

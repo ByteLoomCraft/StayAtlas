@@ -21,12 +21,18 @@ export const createBooking = asyncHandler(async (req, res) => {
   } = req.body;
 
   // On-the-fly calculation
-
   const price = parseFloat(pricePerNightAtBooking);
   const subTotal = price * nights;
   const discount = subTotal * (discountPercentApplied / 100);
   const gst = (subTotal - discount) * 0.18;
   const totalAmount = subTotal - discount + gst;
+
+  console.log("Booking calculation:", {
+    subTotal,
+    discount,
+    gst,
+    totalAmount,
+  });
 
   const booking = await Booking.create({
     villa,
@@ -152,6 +158,7 @@ export const confirmPayment = asyncHandler(async (req, res) => {
 //  route   GET /api/v1/bookings/check-availability
 
 export const checkBookingAvailability = asyncHandler(async (req, res) => {
+  // console.log("Checking booking availability...", req.params, req.query);
   const { villaId } = req.params;
   const { checkIn, checkOut } = req.query;
 
