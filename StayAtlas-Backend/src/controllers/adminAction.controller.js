@@ -1,3 +1,4 @@
+import { User } from "../models/user.model";
 import { Villa } from "../models/villa.model";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
@@ -325,9 +326,21 @@ const totalCountOfVillasByApprovalStatus = asyncHandler(async(req,res)=>{
       );
 })
 
-const getUserCount = asyncHandler(async(req,res)=>{
-    
-})
+const getUserCount = asyncHandler(async (req, res) => {
+    const count = await User.countDocuments();
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            { 
+                userCount: count 
+            },
+            count === 0 ? "No users found." : "User count fetched successfully."
+        )
+    );
+});
 
 
 export {
@@ -339,6 +352,5 @@ export {
     editVillaDetailsById,
     deleteVilla,
     totalCountOfVillasByApprovalStatus,
-    
-
+    getUserCount
 }

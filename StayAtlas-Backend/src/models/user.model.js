@@ -2,6 +2,8 @@ import mongoose,{Schema} from "mongoose";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import crypto from "crypto"
+
 dotenv.config()
 const userSchema = new Schema(
     {
@@ -43,6 +45,12 @@ const userSchema = new Schema(
         },
         refreshToken: {
             type: String
+        },
+        resetPasswordToken:{
+            type: String
+        },
+        resetPasswordExpire:{
+            type: Date
         }
 
     },
@@ -90,4 +98,16 @@ userSchema.methods.generateRefreshToken = function(){
         }
     )
 }
+
+userSchema.methods.getResetPasswordToken = function () {
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    this.resetPasswordToken = crypto.createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+    this.resetPasswordExpire = Date.now() + 15 * 60 * 1000; 
+
+    return resetToken;
+};
 export const User = mongoose.model("User",userSchema)
