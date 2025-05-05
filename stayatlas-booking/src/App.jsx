@@ -21,6 +21,7 @@ import ProtectedRoutes from "./components/ProtectedRoutes"
 import Profile from "./pages/Profile"
 import ViewExclusive from "./pages/ViewExclusive"
 import ExclusiveLayout from "./layout/ExclusiveLayout"
+import AdminDashboard from "./pages/AdminDashboard"
 
 function App() {
 
@@ -56,6 +57,11 @@ function App() {
   }
 
   const appRouter = createBrowserRouter([
+    {
+      path:"/admin",
+      element: <AdminDashboard/>,
+      errorElement: <ErrorPage />
+    },
     {
       path:"/",
       element:<MainLayout/>,
