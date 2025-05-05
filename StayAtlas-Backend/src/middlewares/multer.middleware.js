@@ -18,7 +18,8 @@ const storage = multer.diskStorage({
         cb(null, UPLOAD_FOLDER);
     },
     filename: function (req, file, cb) {
-        const ext = path.extname(file.originalname);
+        console.log(file)
+        const ext = path.extname(file.originalname).toLowerCase();
         const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
         cb(null, uniqueName);
     }
@@ -26,9 +27,13 @@ const storage = multer.diskStorage({
 
 // File type filter
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|webp/;
+    const allowedTypes = /\.(jpeg|jpg|png|webp)$/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
+//mimetype stands for Multipurpose Internet Mail Extension type.
+
+//It tells what kind of file is being uploaded, based on its content—not just its extension.
+
     if (extname && mimetype) {
         cb(null, true);
     } else {

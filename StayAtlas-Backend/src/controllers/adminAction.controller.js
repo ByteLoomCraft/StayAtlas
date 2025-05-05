@@ -1,9 +1,10 @@
-import { Villa } from "../models/villa.model";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { asyncHandler } from "../utils/asyncHandler";
-import { getPagination } from "../utils/paginate";
-import { adminUpdateVillaSchema } from "../validators/villa.validator";
+import { User } from "../models/user.model.js";
+import { Villa } from "../models/villa.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { getPagination } from "../utils/paginate.js";
+import { adminUpdateVillaSchema } from "../validators/villa.validator.js";
 
 const getAllPendingVillas = asyncHandler(async(req,res)=>{
     const {page, limit, skip} = getPagination(req)
@@ -15,15 +16,17 @@ const getAllPendingVillas = asyncHandler(async(req,res)=>{
     .sort({ createdAt: 1 })
     .skip(skip)
     .limit(limit)
-
+     
+    //console.log(pendingVillas)
     if(!pendingVillas.length){
         return res
         .status(200)
         .json(
-            pendingVillas.length,
             new ApiResponse(
                 200,
-                {},
+                {
+                    count:pendingVillas.length
+                },
                 "NO PENDING VILLAS PRESENT"
             )
         )
@@ -34,7 +37,7 @@ const getAllPendingVillas = asyncHandler(async(req,res)=>{
             approvalStatus:"pending",isDeleted:false
         }
     )
-
+    //console.log(totalCount)
     return res
     .status(200)
     .json(
@@ -176,7 +179,7 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
     }
     const villa = await Villa.findOne({
         _id: villaId,
-        isDeleted: false
+        //isDeleted: false
     });
 
     if (!villa) {
@@ -263,7 +266,7 @@ const editVillaDetailsById = asyncHandler(async (req, res) => {
     );
   });
   
-const deleteVilla = asyncHandler(async(req,res)=>{
+const deleteVillaById = asyncHandler(async(req,res)=>{
     const {id:villaId} = req.params; 
 
     // Find the villa by its ID
@@ -325,9 +328,21 @@ const totalCountOfVillasByApprovalStatus = asyncHandler(async(req,res)=>{
       );
 })
 
-const getUserCount = asyncHandler(async(req,res)=>{
-    
-})
+const getUserCount = asyncHandler(async (req, res) => {
+    const count = await User.countDocuments();
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            { 
+                userCount: count 
+            },
+            count === 0 ? "No users found." : "User count fetched successfully."
+        )
+    );
+});
 
 
 export {
@@ -337,8 +352,7 @@ export {
     reviewPendingVillas,
     ApprovePendingVillas,
     editVillaDetailsById,
-    deleteVilla,
+    deleteVillaById,
     totalCountOfVillasByApprovalStatus,
-    
-
+    getUserCount
 }

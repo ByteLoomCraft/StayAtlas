@@ -4,6 +4,8 @@ import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import sendEmail from "../utils/sendEmail.js";
+import crypto from "crypto"
 dotenv.config()
 
 const generateAccessAndRefreshToken =  async function(userId){
@@ -236,6 +238,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 
 })
+
 const changeCurrentPassword = asyncHandler(async(req, res) => {
     const {oldPassword, newPassword} = req.body
 
@@ -277,6 +280,91 @@ const updateUserName = asyncHandler(async(req,res)=>{
 })
 
 
+const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res
+        .status(404)
+        .json(
+            new ApiResponse(
+                404, 
+                {}, 
+                "User not found"
+            )
+        );
+    }
+
+    const resetToken = user.getResetPasswordToken()
+    await user.save({ validateBeforeSave: false });
+
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+    const message = `You requested a password reset. Click the link below to reset it:\n\n${resetUrl}`;
+
+    try {
+        await sendEmail({
+            to: user.email,
+            subject: "Password Reset",
+            text: message,
+        });
+
+        res.status(200).json(
+            new ApiResponse(200, {}, "Reset link sent to email")
+        );
+    } catch (err) {
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        await user.save({ validateBeforeSave: false });
+
+        throw new ApiError(500,"Email could not be sent");
+    }
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+    const resetToken = crypto
+        .createHash("sha256")
+        .update(req.params.token)
+        .digest("hex");
+
+    const user = await User.findOne({
+        resetPasswordToken: resetToken,
+        resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        return res
+        .status(400)
+        .json(
+            new ApiResponse(
+            400,
+            {},
+            "Invalid or expired token"
+        )
+    );
+    }
+
+    const { password } = req.body;
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200, 
+            {}, 
+            "Password reset successful"
+        )
+    );
+});
+
+
 
 
 
@@ -287,5 +375,8 @@ export {
     refreshAccessToken,
     changeCurrentPassword,
     getUser,
-    updateUserName
+    updateUserName,
+    forgotPassword,
+    resetPassword
+
 }
