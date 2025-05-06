@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto"
+import { Villa } from "../models/villa.model.js";
 dotenv.config()
 
 const generateAccessAndRefreshToken =  async function(userId){
@@ -378,5 +379,6 @@ export {
     updateUserName,
     forgotPassword,
     resetPassword
+    
 
 }

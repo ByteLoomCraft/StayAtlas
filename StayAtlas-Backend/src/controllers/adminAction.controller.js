@@ -79,7 +79,7 @@ const getAllApprovedVillas = asyncHandler(async(req,res)=>{
 
     const totalCount = await Villa.countDocuments(
         {
-            approvalStatus:"pending",isDeleted:false
+            approvalStatus:"approved",isDeleted:false
         }
     )
 
@@ -103,13 +103,14 @@ const getAllRejectedVillas = asyncHandler(async(req,res)=>{
     const {page, limit, skip} = getPagination(req)
 
     const rejectedVillas = await Villa.find(
-        {approvalStatus:"rejected",isDeleted:false}
+        {approvalStatus:"rejected",isDeleted:true}
     )
     .populate("ownerId","firstName lastName phoneNumber email")
     .sort({ createdAt: 1 })
     .skip(skip)
     .limit(limit)
-
+    
+    //console.log(rejectedVillas)
     if(!rejectedVillas.length){
         return res
         .status(200)
@@ -198,7 +199,7 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
 
     const validParsedData = parsed.data
 
-    console.log("validatedData:",validParsedData)
+    //console.log("validatedData:",validParsedData)
     Object.assign(villa,validParsedData)
     // Approve the villa
     villa.approvalStatus = "approved";

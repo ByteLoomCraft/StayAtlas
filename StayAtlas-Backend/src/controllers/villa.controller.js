@@ -42,7 +42,7 @@ export const createVilla = asyncHandler(async (req, res) => {
   }
   const publicUrls = cloudinaryResponse.map(res => res.secure_url);
 
-  console.log(publicUrls)
+  //console.log(publicUrls)
   const villa = await Villa.create({
     ...validatedData,
     ownerId: req.user._id,
