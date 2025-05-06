@@ -25,10 +25,12 @@ app.use((err, req, res, next) => {
 //import routes
 import userRouter from "./routes/user.route.js"
 import villaRoutes from './routes/villa.route.js';
-import bookingRouter from "./routes/booking.route.js"
+import bookingRouter from "./routes/booking.route.js";
+import reviewRoutes from "./routes/review.route.js";
 
 //route declaration 
 app.use("/api/v1/users",userRouter)
 app.use('/api/v1/villas', villaRoutes);
 app.use('/api/v1/bookings', bookingRouter);
+app.use('/api/v1/reviews', reviewRoutes);
 export {app}
