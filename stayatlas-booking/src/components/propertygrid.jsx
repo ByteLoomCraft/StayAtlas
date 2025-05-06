@@ -26,7 +26,8 @@ export default function PropertyListingGrid() {
         try{
           const {data:{data}} = await axios.get("/v1/villas");
           console.log(data);
-          const finalData = data.filter((property) => property.isTrending ===false)
+          const finalData = data.filter((property) => property.isExclusive ===false)
+          // const finalData = data.filter((property) => property.isTrending ===false)
           // console.log(finalData); 
           setProperties(finalData);
           
@@ -100,7 +101,7 @@ export default function PropertyListingGrid() {
               
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-bold">₹ {property.pricePerNight.$numberDecimal}</span>
+                  <span className="font-bold">₹ {property.pricePerNight}</span>
                   <span className="text-gray-600 text-sm"> per night</span>
                 </div>
                 <div className="flex items-center">

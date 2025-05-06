@@ -179,7 +179,7 @@ const ExclusiveInfo = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-base font-semibold text-gray-900">
-                        ₹{property.pricePerNight.$numberDecimal}
+                        ₹{property.pricePerNight}
                         <span className="text-sm text-gray-500"> /night</span>
                       </p>
                     </div>
@@ -248,7 +248,7 @@ const ExclusiveInfo = () => {
 
           {/* Price */}
           <div className="text-xl font-semibold text-slate-800 py-2">
-            ₹{property.pricePerNight.$numberDecimal}
+            ₹{property.pricePerNight}
             <span className="text-sm font-normal text-gray-500"> / night</span>
           </div>
           <div className="text-2xl font-semibold text-slate-800">

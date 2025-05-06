@@ -58,7 +58,9 @@ const getAllApprovedVillas = asyncHandler(async(req,res)=>{
     const {page, limit, skip} = getPagination(req)
 
     const approvedVillas = await Villa.find(
-        {approvalStatus:"approved",isDeleted:false}
+        {approvalStatus:"approved",
+            // isDeleted:false
+        }
     )
     .populate("ownerId","firstName lastName phoneNumber email")
     .sort({ createdAt: 1 })
@@ -189,6 +191,7 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
     if (villa.approvalStatus === "approved") {
         throw new ApiError(400,"Villa is already approved")
     }
+
     //review and edit the details before approve
     const parsed = AdminVillaSchema.safeParse(req.body)
     if (!parsed.success) {

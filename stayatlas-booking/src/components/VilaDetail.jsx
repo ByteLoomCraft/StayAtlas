@@ -47,7 +47,7 @@ const VilaDetail = ({property=null}) => {
       const timeDiff = Math.abs(endDate - startDate);
       const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
   
-      const baseCost = diffDays * property?.pricePerNight?.$numberDecimal;
+      const baseCost = diffDays * property?.pricePerNight;
   
       const discountAmount = (charges.discount / 100) * baseCost;
   
@@ -125,7 +125,7 @@ const VilaDetail = ({property=null}) => {
         villa:id,
         guests:adults+pets+children,
         adults,
-        pricePerNightAtBooking:property?.pricePerNight?.$numberDecimal,
+        pricePerNightAtBooking:property?.pricePerNight,
         pets,
         children,
         checkIn:startDate,
@@ -360,15 +360,15 @@ const VilaDetail = ({property=null}) => {
               </tr> */}
               <tr>
                 <td>{charges.totalNights} nights</td>
-                <td className="text-right">₹{charges.totalNights * property?.pricePerNight?.$numberDecimal}</td>
+                <td className="text-right">₹{charges.totalNights * property?.pricePerNight}</td>
               </tr>
               <tr>
                 <td>Flat {charges.discount}% off</td>
-                <td className="text-right">-₹{(charges.discount/100) * (charges.totalNights * property?.pricePerNight?.$numberDecimal)}</td>
+                <td className="text-right">-₹{(charges.discount/100) * (charges.totalNights * property?.pricePerNight)}</td>
               </tr>
               <tr>
                 <td>GST (18%)</td>
-                <td className="text-right">+₹{(charges.gst/100) * (charges.totalNights * property?.pricePerNight?.$numberDecimal)}</td>
+                <td className="text-right">+₹{(charges.gst/100) * (charges.totalNights * property?.pricePerNight)}</td>
               </tr>
               <tr className="font-bold">
                 <td>Total Amount</td>

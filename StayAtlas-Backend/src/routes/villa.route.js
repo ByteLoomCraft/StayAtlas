@@ -17,7 +17,7 @@ const router = express.Router();
 
 
 // PROTECTED ROUTES
-router.post("/create-villa", verifyJWT, canListVilla, upload.array('images',10),parseAddressBody,createVilla); // Owner or Admin can create
+router.post("/create-villa", verifyJWT, canListVilla, upload.array('images',10),createVilla); // Owner or Admin can create
 router.put("/:id", verifyJWT, updateVilla); // Owner or Admin can update
 router.delete("/:id", verifyJWT, deleteVilla); // Owner or Admin can delete
 router.get("/", verifyJWT, getAllApprovedVillas); // All approved and non-deleted villas

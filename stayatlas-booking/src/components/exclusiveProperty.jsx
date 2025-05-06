@@ -42,8 +42,9 @@ export default function ExclusiveProperty() {
     async function fetchExclusive() {
       try{
         const {data:{data}} = await axios.get("/v1/villas");
-        const finalData = data.filter((property) => property.isTrending ===true)
-        // console.log(finalData);
+        // const finalData = data.filter((property) => property.isTrending ===true)
+        const finalData = data.filter((property) => property.isExclusive ===true)
+        console.log(finalData);
         setHotels(finalData);
       }catch(err){
         console.log(err);
@@ -180,7 +181,7 @@ export default function ExclusiveProperty() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-base font-semibold text-gray-900">
-                    ₹{property.pricePerNight.$numberDecimal}
+                    ₹{property.pricePerNight}
                     <span className="text-sm text-gray-500"> /night</span>
                   </p>
                 </div>
