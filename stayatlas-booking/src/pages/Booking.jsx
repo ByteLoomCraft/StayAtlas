@@ -35,11 +35,11 @@ const Booking = () => {
     </div>
   }
 
-  // console.log(property)
+  console.log(property)
 
   return (
     <div>
-      <VillaHeader title={property.name}/>
+      <VillaHeader title={property.villaName}/>
       <Gallery photos={property.images}/>
       <VillaDetails property={property}/>
       <Testimonials/>

@@ -53,7 +53,7 @@ export default function PropertyListingGrid() {
             <div className="relative">
               <img 
                 src={property.images[0]} 
-                alt={property.name} 
+                alt={property.villaName} 
                 className="w-full h-48 object-cover"
               />
               <button 
@@ -69,7 +69,7 @@ export default function PropertyListingGrid() {
             </div>
             
             <div className="p-4">
-              <h3 className="font-bold text-base mb-1">{property.name}</h3>
+              <h3 className="font-bold text-base mb-1">{property.villaName}</h3>
               
               <div className="flex items-center text-gray-500 text-sm mb-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

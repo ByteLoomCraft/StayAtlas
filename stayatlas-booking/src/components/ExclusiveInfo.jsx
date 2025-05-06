@@ -150,7 +150,7 @@ const ExclusiveInfo = () => {
               </div>
                 <div className="p-6 ">
                   <h3 className="text-lg font-semibold text-gray-900 p-4">
-                    {property.name}
+                    {property.villaName}
                   </h3>
                   <p className="text-sm text-gray-600 flex items-center mb-2">
                     <svg className="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -204,7 +204,7 @@ const ExclusiveInfo = () => {
         <div className=" w-0 md:w-[50%]  overflow-hidden md:overflow-visible pl-15 pr-0 md:pr-50 py-15 bg-gray-100">
         <div className="font-custom  text-slate-600 space-y-3 h-full w-full">
           {/* Property Name */}
-          <h1 className="text-4xl font-bold leading-snug text-slate-700">{property.name}</h1>
+          <h1 className="text-4xl font-bold leading-snug text-slate-700">{property.villaName}</h1>
 
           {/* Location */}
           <div className="flex items-center text-slate-700 font-semibold text-4xl py-2">

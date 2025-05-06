@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "../../utils/axios.js"
 import { Search } from "lucide-react";
+import { ReviewModal } from "./ReviewModal.jsx";
 
 const VillaManagement = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -124,12 +125,18 @@ const VillaManagement = () => {
  
         {isManage && (
           <div className="px-6 py-4 bg-gray-50 flex gap-3">
-            <button onClick={() => handleApprove(villa._id)} className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+            {/* <button onClick={() => handleApprove(villa._id)} className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
               Approve
+            </button> */}
+            <button
+              onClick={() => openReviewModal(villa,villa._id)}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              Review
             </button>
-            <button onClick={() => handleReject(villa._id)} className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+            {/* <button onClick={() => handleReject(villa._id)} className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
               Reject
-            </button>
+            </button> */}
           </div>
         )}
       </div>
@@ -144,8 +151,8 @@ const VillaManagement = () => {
           axios.get("/v1/admin/get-all-approved-villa")
         ])
 
-        console.log("Pending Villas:", pendingResponse.data);
-        console.log("Manage Villas:", approvedResponse.data);
+        // console.log("Pending Villas:", pendingResponse.data);
+        // console.log("Manage Villas:", approvedResponse.data);
         if(pendingResponse.data.statusCode == 200){
           // console.log("Pending Villas:", response.data.data.villas);
           const set = Array.isArray(pendingResponse.data.data.villas) ? pendingResponse.data.data.villas : [];
@@ -189,12 +196,187 @@ const VillaManagement = () => {
       setFilteredManageVillas(filtered);
     }else{
       const filtered = viewVillasData.filter((villa) =>
-        villa.mobile.toLowerCase().includes(query)
+        villa.phoneNumber.toLowerCase().includes(query)
       );
       setFilteredViewVillas(filtered);
     }
     
   }
+
+
+   const [modalOpen, setModalOpen] = useState(false);
+   const [editedVilla, setEditedVilla] = useState(null);
+   const [currentVilla, setCurrentVilla] = useState(null);
+   const [manageVillas, setManageVillas] = useState([]);
+    const [viewedVillas,   setViewedVillas]   = useState([]);
+
+
+    // const openReviewModal = (villa) => {
+    //   setCurrentVilla(villa);
+    //   setEditedVilla({...villa});
+    //   setModalOpen(true);
+    // };
+
+    const openReviewModal = (villa,villaId) => {
+      setEditedVilla({
+        _id: villaId || "",
+        villaOwner: villa.villaOwner || "",
+        villaName: villa.villaName || "",
+        propertyType: villa.propertyType || "",
+        numberOfRooms: villa.numberOfRooms || "",
+        email: villa.email || "",
+        phoneNumber: villa.phoneNumber || "",
+        address: {
+          street: villa.address?.street || "",
+          landmark: villa.address?.landmark || "",
+          city: villa.address?.city || "",
+          state: villa.address?.state || "",
+          country: villa.address?.country || "",
+          zipcode: villa.address?.zipcode || "",
+        },
+        amenities: Array.isArray(villa.amenities) ? villa.amenities : [],
+        images: Array.isArray(villa.images) ? villa.images : [],
+        // Initialize category and availability
+        category: Array.isArray(villa.category) ? villa.category : [],
+        availability: Array.isArray(villa.availability) 
+          ? villa.availability 
+          : [],
+        // Admin fields
+        pricePerNight: villa.pricePerNight || 0,
+        discountPercent: villa.discountPercent || 0,
+        promotionText: villa.promotionText || "",
+        isExclusive: villa.isExclusive || false,
+        approvalStatus: villa.approvalStatus || "pending",
+        approvalComment: villa.approvalComment || "",
+      });
+      setModalOpen(true);
+    };
+
+
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      if (name === "isExclusive") {
+        setEditedVilla(prev => ({
+          ...prev,
+          [name]: e.target.checked
+        }));
+        return;
+      }else{
+        setEditedVilla(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+    };
+
+    const handleAddressChange = (e) => {
+      const { name, value } = e.target;
+      setEditedVilla(prev => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [name]: value
+        }
+      }));
+    };
+
+    const handleAmenityChange = (index, value) => {
+      const updatedAmenities = [...editedVilla.amenities];
+      updatedAmenities[index] = value;
+      setEditedVilla(prev => ({
+        ...prev,
+        amenities: updatedAmenities
+      }));
+    };
+
+    const handleAddAmenity = () => {
+      setEditedVilla(prev => ({
+        ...prev,
+        amenities: [...prev.amenities, ""]
+      }));
+    };
+
+    const handleRemoveAmenity = (index) => {
+      const updatedAmenities = [...editedVilla.amenities];
+      updatedAmenities.splice(index, 1);
+      setEditedVilla(prev => ({
+        ...prev,
+        amenities: updatedAmenities
+      }));
+    };
+
+    const handleImageChange = (index, value) => {
+      const updatedImages = [...editedVilla.images];
+      updatedImages[index] = value;
+      setEditedVilla(prev => ({
+        ...prev,
+        images: updatedImages
+      }));
+    };
+
+    const handleAddImage = () => {
+      setEditedVilla(prev => ({
+        ...prev,
+        images: [...prev.images, ""]
+      }));
+    };
+
+    const handleRemoveImage = (index) => {
+      const updatedImages = editedVilla.images.filter((_, i) => i !== index);
+      setEditedVilla(prev => ({
+        ...prev,
+        images: updatedImages
+      }));
+    };
+
+
+    const saveChanges = async() => {
+      console.log("Saving changes for villa:", editedVilla);
+      editedVilla.numberOfRooms =  String(editedVilla.numberOfRooms)
+      editedVilla.pricePerNight =  Number(editedVilla.pricePerNight)
+      editedVilla.discountPercent =  Number(editedVilla.discountPercent)
+      if(editedVilla.approvalStatus === "approved"){
+        try{
+          const response = await axios.post(`/v1/admin/approve-pending-villa/${editedVilla._id}`, editedVilla);
+          console.log("Response:", response.data);
+          if(response.data.statusCode == 200){
+            toast.success("Accepted successfully");
+            setManageVillasData(prev => prev.filter(villa => villa._id !== editedVilla._id));
+            setViewVillasData(prev => [...prev, editedVilla]);
+            setFilteredManageVillas(prev => prev.filter(villa => villa._id !== editedVilla._id));
+            setFilteredViewVillas(prev => [...prev, editedVilla]);
+          }else{
+            toast.error("Error saving changes");
+            console.error("Error saving changes:", response.data.message);
+          }
+        }catch(err){
+          toast.error("Error saving changes");
+          console.error("Error saving changes:", err);
+        }
+      }else if(editedVilla.approvalStatus === "rejected"){
+        try{
+          const response = await axios.post(`/v1/admin/delete-villaById/${editedVilla._id}`, editedVilla);
+          console.log("Response:", response.data);
+          if(response.data.statusCode == 200){
+            toast.success("Rejected successfully");
+            setManageVillasData(prev => prev.filter(villa => villa._id !== editedVilla._id));
+            setFilteredManageVillas(prev => prev.filter(villa => villa._id !== editedVilla._id));
+          }else{
+            toast.error("Error saving changes");
+            console.error("Error saving changes:", response.data.message);
+          }
+        }catch(err){
+          toast.error("Error saving changes");
+          console.error("Error saving changes:", err);
+        }
+      }
+      
+      setModalOpen(false);
+    };
+
+    const closeModal = () => {
+      setModalOpen(false);
+    };
 
 
 
@@ -274,8 +456,23 @@ const VillaManagement = () => {
           }
         </div>
       </div>
+      <ReviewModal
+        modalOpen={modalOpen}
+        editedVilla={editedVilla}
+        closeModal={closeModal}
+        handleInputChange={handleInputChange}
+        handleAddressChange={handleAddressChange}
+        handleAmenityChange={handleAmenityChange}
+        handleAddAmenity={handleAddAmenity}
+        handleRemoveAmenity={handleRemoveAmenity}
+        saveChanges={saveChanges}
+        handleImageChange={handleImageChange}
+        handleAddImage={handleAddImage}
+        handleRemoveImage={handleRemoveImage}
+      />
     </div>
   );
 };
 
 export default VillaManagement;
+

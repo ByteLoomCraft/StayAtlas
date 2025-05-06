@@ -159,7 +159,7 @@ const VilaDetail = ({property=null}) => {
     </div>
   }
 
-  console.log(property)
+  // console.log(property)
 
   return (
     <div className="font-custom min-h-screen flex items-center justify-center bg-[#f8f7f6] text-black p-6">
@@ -167,7 +167,7 @@ const VilaDetail = ({property=null}) => {
         <div className="md:w-2/3 space-y-6">
           <div>
             <h1 className="text-3xl font-bold">
-              {property.name}
+              {property.villaName}
             </h1>
             <p className="text-lg">{`${property?.address?.city}, ${property?.address?.country}`}</p>
           </div>
