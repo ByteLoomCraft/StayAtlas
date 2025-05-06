@@ -58,10 +58,12 @@ const getAllApprovedVillas = asyncHandler(async(req,res)=>{
     const {page, limit, skip} = getPagination(req)
 
     const approvedVillas = await Villa.find(
-        {approvalStatus:"approved",isDeleted:false}
+        {approvalStatus:"approved",
+            // isDeleted:false
+        }
     )
     .populate("ownerId","firstName lastName phoneNumber email")
-    .sort({ createdAt: 1 })
+    .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
 
@@ -190,6 +192,9 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
     if (villa.approvalStatus === "approved") {
         throw new ApiError(400,"Villa is already approved")
     }
+
+    console.log("villa:",req.body)
+
     //review and edit the details before approve
     const parsed = AdminVillaSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -294,9 +299,9 @@ const deleteVillaById = asyncHandler(async(req,res)=>{
     }
   
     // Soft Delete: Set the villa as deleted
-    villa.isDeleted = true;
+    // villa.isDeleted = true;
     villa.approvalStatus = "rejected"
-    villa.rejectedReason = req.body.rejectedReason
+    villa.rejectedReason = req.body.rejectedReason || "Deleted by admin"
     await villa.save();
   
     return res

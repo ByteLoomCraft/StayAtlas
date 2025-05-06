@@ -8,7 +8,7 @@ import { isAdmin } from "../middlewares/admin.middleware.js";
 const router = Router()
 
 router.use(verifyJWT)
-router.use(isAdmin)
+// router.use(isAdmin)
 
 router.route("/get-all-pending-villa").get(getAllPendingVillas)
 router.route("/get-all-approved-villa").get(getAllApprovedVillas)

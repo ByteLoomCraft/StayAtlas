@@ -22,6 +22,7 @@ import Profile from "./pages/Profile"
 import ViewExclusive from "./pages/ViewExclusive"
 import ExclusiveLayout from "./layout/ExclusiveLayout"
 import AdminDashboard from "./pages/AdminDashboard"
+import PropertyRequestForm from "./pages/listform"
 
 function App() {
 
@@ -70,7 +71,7 @@ function App() {
         {
           path:"/",
           element:(
-          <Home/>
+            <Home/>
           )
         },
         {
@@ -80,6 +81,10 @@ function App() {
         {
           path:"/login",
           element:(<Login/>)
+        },
+        {
+          path:"/list",
+          element:(<ProtectedRoutes><PropertyRequestForm/></ProtectedRoutes>)
         },
         {
           path:"/booking/:id",

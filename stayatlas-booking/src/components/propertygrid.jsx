@@ -26,7 +26,8 @@ export default function PropertyListingGrid() {
         try{
           const {data:{data}} = await axios.get("/v1/villas");
           console.log(data);
-          const finalData = data.filter((property) => property.isTrending ===false)
+          const finalData = data.filter((property) => property.isExclusive ===false)
+          // const finalData = data.filter((property) => property.isTrending ===false)
           // console.log(finalData); 
           setProperties(finalData);
           
@@ -52,7 +53,7 @@ export default function PropertyListingGrid() {
             <div className="relative">
               <img 
                 src={property.images[0]} 
-                alt={property.name} 
+                alt={property.villaName} 
                 className="w-full h-48 object-cover"
               />
               <button 
@@ -68,7 +69,7 @@ export default function PropertyListingGrid() {
             </div>
             
             <div className="p-4">
-              <h3 className="font-bold text-base mb-1">{property.name}</h3>
+              <h3 className="font-bold text-base mb-1">{property.villaName}</h3>
               
               <div className="flex items-center text-gray-500 text-sm mb-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,7 +101,7 @@ export default function PropertyListingGrid() {
               
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-bold">₹ {property.pricePerNight.$numberDecimal}</span>
+                  <span className="font-bold">₹ {property.pricePerNight}</span>
                   <span className="text-gray-600 text-sm"> per night</span>
                 </div>
                 <div className="flex items-center">

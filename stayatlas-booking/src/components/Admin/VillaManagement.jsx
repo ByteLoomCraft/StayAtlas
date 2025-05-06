@@ -1,157 +1,35 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import axios from "../../utils/axios.js"
+import { Search } from "lucide-react";
+import { ReviewModal } from "./ReviewModal.jsx";
 
 const VillaManagement = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const [manageVillasData, setManageVillasData] = useState([]);
+  const [viewVillasData, setViewVillasData] = useState([]);
 
-  const manageVillasData = [
-    {
-      id: 1,
-      fullName: "Rajesh Sharma",
-      villaName: "Ganga View Retreat",
-      email: "rajesh.sharma@example.com",
-      mobile: "+91 98765 43210",
-      rooms: 5,
-      propertyType: "Riverside Villa",
-      address: {
-        street: "42 Riverfront Road",
-        landmark: "Near Parmarth Niketan",
-        city: "Rishikesh",
-        state: "Uttarakhand",
-        country: "India",
-        zipcode: "249201"
-      },
-      amenities: ["Yoga Deck", "Private Ghat", "Meditation Room", "Organic Garden", "Custom: Ayurvedic Spa"],
-      photos: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "A serene riverside villa overlooking the sacred Ganges. Perfect for spiritual retreats and yoga enthusiasts with direct river access and stunning mountain views."
-    },
-    {
-      id: 2,
-      fullName: "Priya Patel",
-      villaName: "Sea Breeze Haven",
-      email: "priya.patel@example.com",
-      mobile: "+91 87654 32109",
-      rooms: 4,
-      propertyType: "Beach Villa",
-      address: {
-        street: "78 Coastal Highway",
-        landmark: "Opposite Morjim Beach",
-        city: "Morjim",
-        state: "Goa",
-        country: "India",
-        zipcode: "403512"
-      },
-      amenities: ["Infinity Pool", "Beach Access", "Open Kitchen", "BBQ Area", "Custom: Sunset Deck"],
-      photos: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "A luxurious beachfront property in North Goa with direct beach access. The villa offers beautiful sunset views, modern amenities, and a perfect blend of indoor and outdoor living spaces."
-    },
-    {
-      id: 3,
-      fullName: "Vikram Singh",
-      villaName: "Royal Heritage Haveli",
-      email: "vikram.singh@example.com",
-      mobile: "+91 76543 21098",
-      rooms: 6,
-      propertyType: "Heritage Villa",
-      address: {
-        street: "15 Palace Road",
-        landmark: "Near Amber Fort",
-        city: "Jaipur",
-        state: "Rajasthan",
-        country: "India",
-        zipcode: "302001"
-      },
-      amenities: ["Private Courtyard", "Jharokha Balconies", "Heritage Art Collection", "Custom: Royal Kitchen"],
-      photos: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "An authentic Rajasthani haveli restored with modern amenities while preserving its historical charm. Features traditional architecture, hand-painted murals, and royal hospitality."
+  async function handleApprove(id) {
+    try{
+      console.log("Approving villa with ID:", id);
+    }catch(err){
+      toast.error("Error approving villa");
+      console.error("Error approving villa:", err);
     }
-  ];
-  
-  const viewVillasData = [
-    {
-      id: 101,
-      fullName: "Ananya Reddy",
-      villaName: "Mountain Mist Cottage",
-      email: "ananya.reddy@example.com",
-      mobile: "+91 94567 89012",
-      rooms: 3,
-      propertyType: "Hill Station Villa",
-      address: {
-        street: "23 Hillview Road",
-        landmark: "Near Lal Tibba",
-        city: "Mussoorie",
-        state: "Uttarakhand",
-        country: "India",
-        zipcode: "248179"
-      },
-      amenities: ["Fireplace", "Mountain View Deck", "Library", "Custom: Outdoor Bonfire Pit"],
-      photos: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "A charming cottage nestled in the Himalayas with panoramic valley views. The property features colonial architecture with wooden interiors and is surrounded by pine and deodar forests."
-    },
-    {
-      id: 102,
-      fullName: "Arjun Nair",
-      villaName: "Coconut Grove Estate",
-      email: "arjun.nair@example.com",
-      mobile: "+91 85432 10987",
-      rooms: 4,
-      propertyType: "Backwater Villa",
-      address: {
-        street: "56 Canal Bank",
-        landmark: "Opposite Kumarakom Bird Sanctuary",
-        city: "Kumarakom",
-        state: "Kerala",
-        country: "India",
-        zipcode: "686563"
-      },
-      amenities: ["Private Jetty", "Houseboat Dock", "Ayurvedic Massage Room", "Custom: Traditional Kerala Kitchen"],
-      photos: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "A traditional Kerala-style villa situated on the serene backwaters. Features authentic architecture with modern comforts, surrounded by coconut groves and offering spectacular sunset views."
-    },
-    {
-      id: 103,
-      fullName: "Kiran Mehta",
-      villaName: "Vineyard Valley Retreat",
-      email: "kiran.mehta@example.com",
-      mobile: "+91 74321 09876",
-      rooms: 5,
-      propertyType: "Countryside Villa",
-      address: {
-        street: "88 Vineyard Avenue",
-        landmark: "Near York Winery",
-        city: "Nashik",
-        state: "Maharashtra",
-        country: "India",
-        zipcode: "422003"
-      },
-      amenities: ["Wine Cellar", "Grape Farm Access", "Outdoor Dining", "Custom: Wine Tasting Room"],
-      photos: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "A modern villa surrounded by lush vineyards in India's wine country. Perfect for wine enthusiasts with exclusive access to private vineyard tours and premium wine tasting experiences."
-    },
-    {
-      id: 104,
-      fullName: "Neha Joshi",
-      villaName: "Himalayan Pine Lodge",
-      email: "neha.joshi@example.com",
-      mobile: "+91 65432 10987",
-      rooms: 4,
-      propertyType: "Mountain Lodge",
-      address: {
-        street: "112 Cedar Lane",
-        landmark: "Near Hadimba Temple",
-        city: "Manali",
-        state: "Himachal Pradesh",
-        country: "India",
-        zipcode: "175131"
-      },
-      amenities: ["Heated Floors", "Apple Orchard", "Snowview Terrace", "Custom: Traditional Himachali Kitchen"],
-      photos: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "A cozy wooden lodge nestled among pine forests with stunning views of snow-capped peaks. Features traditional Himachali architecture with modern amenities and easy access to adventure activities."
+  }
+
+  async function handleReject(id) {
+    try{
+      console.log("Approving villa with ID:", id);
+    }catch(err){
+      toast.error("Error approving villa");
+      console.error("Error approving villa:", err);
     }
-  ];
+  }
 
   const VillaCard = ({ villa, isManage }) => {
     const [expanded, setExpanded] = useState(false);
-    
+    // console.log("Villa Card:", villa);
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6">
@@ -167,16 +45,16 @@ const VillaManagement = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <p className="text-sm text-gray-500">Owner</p>
-              <p className="font-medium">{villa.fullName}</p>
+              <p className="font-medium">{`${villa?.ownerId.firstName} ${villa?.ownerId.lastName}`}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Contact</p>
               <p className="font-medium">{villa.email}</p>
-              <p className="font-medium">{villa.mobile}</p>
+              <p className="font-medium">{villa.phoneNumber}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Rooms</p>
-              <p className="font-medium">{villa.rooms}</p>
+              <p className="font-medium">{villa.numberOfRooms}</p>
             </div>
           </div>
  
@@ -202,10 +80,10 @@ const VillaManagement = () => {
               <div>
                 <p className="text-sm text-gray-500 font-medium mb-1">Address</p>
                 <div className="pl-2 border-l-2 border-gray-200">
-                  <p>{villa.address.street}</p>
-                  <p>{villa.address.landmark}</p>
-                  <p>{villa.address.city}, {villa.address.state}</p>
-                  <p>{villa.address.country}, {villa.address.zipcode}</p>
+                  <p>{villa?.address.street}</p>
+                  <p>{villa?.address.landmark}</p>
+                  <p>{villa?.address.city}, {villa?.address.state}</p>
+                  <p>{villa?.address.country}, {villa?.address.zipcode}</p>
                 </div>
               </div>
               
@@ -230,7 +108,7 @@ const VillaManagement = () => {
               <div>
                 <p className="text-sm text-gray-500 font-medium mb-1">Photos</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {villa.photos.map((photo, index) => (
+                  {villa.images.map((photo, index) => (
                     <img 
                       key={index}
                       src={photo} 
@@ -247,17 +125,260 @@ const VillaManagement = () => {
  
         {isManage && (
           <div className="px-6 py-4 bg-gray-50 flex gap-3">
-            <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+            {/* <button onClick={() => handleApprove(villa._id)} className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
               Approve
+            </button> */}
+            <button
+              onClick={() => openReviewModal(villa,villa._id)}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              Review
             </button>
-            <button className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+            {/* <button onClick={() => handleReject(villa._id)} className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
               Reject
-            </button>
+            </button> */}
           </div>
         )}
       </div>
     );
   };
+
+  useEffect(() => {
+    async function fetchData() {
+      try{
+        const [pendingResponse, approvedResponse] = await Promise.all([
+          axios.get("/v1/admin/get-all-pending-villa"),
+          axios.get("/v1/admin/get-all-approved-villa")
+        ])
+
+        // console.log("Pending Villas:", pendingResponse.data);
+        // console.log("Manage Villas:", approvedResponse.data);
+        if(pendingResponse.data.statusCode == 200){
+          // console.log("Pending Villas:", response.data.data.villas);
+          const set = Array.isArray(pendingResponse.data.data.villas) ? pendingResponse.data.data.villas : [];
+          setManageVillasData(set);
+          setFilteredManageVillas(set);
+        }else{
+          toast.error("Error fetching pending villas");
+          console.error("Error fetching pending villas:", pendingResponse.data.message);
+        }
+
+        if(approvedResponse.data.statusCode == 200){
+          // console.log("Pending Villas:", response.data.data.villas);
+          const set = Array.isArray(approvedResponse.data.data.villas) ? approvedResponse.data.data.villas : [];
+          setViewVillasData(set);
+          setFilteredViewVillas(set);
+        }else{
+          toast.error("Error fetching pending villas");
+          console.error("Error fetching pending villas:", approvedResponse.data.message);
+        }
+      }catch(err){
+        toast.error("Error fetching villa data:", err);
+        console.error("Error fetching data:", err);
+      }
+    }
+    fetchData();
+  },[])
+
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredManageVillas, setFilteredManageVillas] = useState(manageVillasData);
+  const [filteredViewVillas, setFilteredViewVillas] = useState(viewVillasData);
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    // console.log("Search query:", query);
+    if(activeTab == 0){
+      const filtered = manageVillasData.filter((villa) =>
+        villa.phoneNumber.toLowerCase().includes(query)
+      );
+      setFilteredManageVillas(filtered);
+    }else{
+      const filtered = viewVillasData.filter((villa) =>
+        villa.phoneNumber.toLowerCase().includes(query)
+      );
+      setFilteredViewVillas(filtered);
+    }
+    
+  }
+
+
+   const [modalOpen, setModalOpen] = useState(false);
+   const [editedVilla, setEditedVilla] = useState(null);
+   const [currentVilla, setCurrentVilla] = useState(null);
+   const [manageVillas, setManageVillas] = useState([]);
+    const [viewedVillas,   setViewedVillas]   = useState([]);
+
+
+    // const openReviewModal = (villa) => {
+    //   setCurrentVilla(villa);
+    //   setEditedVilla({...villa});
+    //   setModalOpen(true);
+    // };
+
+    const openReviewModal = (villa,villaId) => {
+      setEditedVilla({
+        _id: villaId || "",
+        villaOwner: villa.villaOwner || "",
+        villaName: villa.villaName || "",
+        propertyType: villa.propertyType || "",
+        numberOfRooms: villa.numberOfRooms || "",
+        email: villa.email || "",
+        phoneNumber: villa.phoneNumber || "",
+        address: {
+          street: villa.address?.street || "",
+          landmark: villa.address?.landmark || "",
+          city: villa.address?.city || "",
+          state: villa.address?.state || "",
+          country: villa.address?.country || "",
+          zipcode: villa.address?.zipcode || "",
+        },
+        amenities: Array.isArray(villa.amenities) ? villa.amenities : [],
+        images: Array.isArray(villa.images) ? villa.images : [],
+        // Initialize category and availability
+        category: Array.isArray(villa.category) ? villa.category : [],
+        availability: Array.isArray(villa.availability) 
+          ? villa.availability 
+          : [],
+        // Admin fields
+        pricePerNight: villa.pricePerNight || 0,
+        discountPercent: villa.discountPercent || 0,
+        promotionText: villa.promotionText || "",
+        isExclusive: villa.isExclusive || false,
+        approvalStatus: villa.approvalStatus || "pending",
+        approvalComment: villa.approvalComment || "",
+      });
+      setModalOpen(true);
+    };
+
+
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      if (name === "isExclusive") {
+        setEditedVilla(prev => ({
+          ...prev,
+          [name]: e.target.checked
+        }));
+        return;
+      }else{
+        setEditedVilla(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+    };
+
+    const handleAddressChange = (e) => {
+      const { name, value } = e.target;
+      setEditedVilla(prev => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [name]: value
+        }
+      }));
+    };
+
+    const handleAmenityChange = (index, value) => {
+      const updatedAmenities = [...editedVilla.amenities];
+      updatedAmenities[index] = value;
+      setEditedVilla(prev => ({
+        ...prev,
+        amenities: updatedAmenities
+      }));
+    };
+
+    const handleAddAmenity = () => {
+      setEditedVilla(prev => ({
+        ...prev,
+        amenities: [...prev.amenities, ""]
+      }));
+    };
+
+    const handleRemoveAmenity = (index) => {
+      const updatedAmenities = [...editedVilla.amenities];
+      updatedAmenities.splice(index, 1);
+      setEditedVilla(prev => ({
+        ...prev,
+        amenities: updatedAmenities
+      }));
+    };
+
+    const handleImageChange = (index, value) => {
+      const updatedImages = [...editedVilla.images];
+      updatedImages[index] = value;
+      setEditedVilla(prev => ({
+        ...prev,
+        images: updatedImages
+      }));
+    };
+
+    const handleAddImage = () => {
+      setEditedVilla(prev => ({
+        ...prev,
+        images: [...prev.images, ""]
+      }));
+    };
+
+    const handleRemoveImage = (index) => {
+      const updatedImages = editedVilla.images.filter((_, i) => i !== index);
+      setEditedVilla(prev => ({
+        ...prev,
+        images: updatedImages
+      }));
+    };
+
+
+    const saveChanges = async() => {
+      console.log("Saving changes for villa:", editedVilla);
+      editedVilla.numberOfRooms =  String(editedVilla.numberOfRooms)
+      editedVilla.pricePerNight =  Number(editedVilla.pricePerNight)
+      editedVilla.discountPercent =  Number(editedVilla.discountPercent)
+      if(editedVilla.approvalStatus === "approved"){
+        try{
+          const response = await axios.post(`/v1/admin/approve-pending-villa/${editedVilla._id}`, editedVilla);
+          console.log("Response:", response.data);
+          if(response.data.statusCode == 200){
+            toast.success("Accepted successfully");
+            setManageVillasData(prev => prev.filter(villa => villa._id !== editedVilla._id));
+            setViewVillasData(prev => [...prev, editedVilla]);
+            setFilteredManageVillas(prev => prev.filter(villa => villa._id !== editedVilla._id));
+            setFilteredViewVillas(prev => [...prev, editedVilla]);
+          }else{
+            toast.error("Error saving changes");
+            console.error("Error saving changes:", response.data.message);
+          }
+        }catch(err){
+          toast.error("Error saving changes");
+          console.error("Error saving changes:", err);
+        }
+      }else if(editedVilla.approvalStatus === "rejected"){
+        try{
+          const response = await axios.post(`/v1/admin/delete-villaById/${editedVilla._id}`, editedVilla);
+          console.log("Response:", response.data);
+          if(response.data.statusCode == 200){
+            toast.success("Rejected successfully");
+            setManageVillasData(prev => prev.filter(villa => villa._id !== editedVilla._id));
+            setFilteredManageVillas(prev => prev.filter(villa => villa._id !== editedVilla._id));
+          }else{
+            toast.error("Error saving changes");
+            console.error("Error saving changes:", response.data.message);
+          }
+        }catch(err){
+          toast.error("Error saving changes");
+          console.error("Error saving changes:", err);
+        }
+      }
+      
+      setModalOpen(false);
+    };
+
+    const closeModal = () => {
+      setModalOpen(false);
+    };
+
+
 
   return (
     <div className="w-full overflow-hidden min-h-screen bg-gray-100 p-4">
@@ -279,6 +400,23 @@ const VillaManagement = () => {
         >
           View Villas
         </button>
+        {/* <input
+          type="text"
+          placeholder="Search by mobile number"
+          value={searchQuery}
+          onChange={handleSearch}  
+          className="px-4 py-2 border rounded-md w-1/3"
+        /> */}
+        <div className="flex items-center border border-gray-400 rounded-md px-2 w-1/3 focus-within:border-blue-500 focus-within:border-2">
+          <Search className="text-gray-500 mr-2" />
+          <input
+            type="text"
+            placeholder="Search by mobile number"
+            value={searchQuery}
+            onChange={handleSearch}
+            className="py-2 outline-none w-full"
+          />
+        </div>
       </div>
 
       <div className="relative w-full">
@@ -286,21 +424,55 @@ const VillaManagement = () => {
           className="flex transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${activeTab * 100}%)` }}
         >
-          <div className="min-w-full grid gap-6">
-            {manageVillasData.map((villa) => (
-              <VillaCard key={villa.id} villa={villa} isManage={true} />
-            ))}
-          </div>
+          {manageVillasData.length === 0 && activeTab === 0 ? 
+            (
+              <div className="flex items-center justify-center min-h-screen bg-gray-100 min-w-full">
+                <p className="text-lg text-gray-500">No pending villas to manage.</p>
+              </div>
+            ) 
+            :
+            (
+              <div className="min-w-full grid gap-6">
+                {filteredManageVillas.map((villa) => (
+                  <VillaCard key={villa._id} villa={villa} isManage={true} />
+                ))}
+              </div>
+            )
+          }
 
-          <div className="min-w-full grid gap-6">
-            {viewVillasData.map((villa) => (
-              <VillaCard key={villa.id} villa={villa} isManage={false} />
-            ))}
-          </div>
+          {viewVillasData.length === 0 && activeTab === 1 ? 
+            (
+              <div className="flex items-center justify-center min-h-screen bg-gray-100 min-w-full">
+                <p className="text-lg text-gray-500">No villas to manage.</p>
+              </div>
+            ) 
+            :
+            <div className="min-w-full grid gap-6">
+              {filteredViewVillas.map((villa) => (
+                <VillaCard key={villa.id} villa={villa} isManage={false} />
+              ))}
+              {/* <div>Hi</div> */}
+            </div>
+          }
         </div>
       </div>
+      <ReviewModal
+        modalOpen={modalOpen}
+        editedVilla={editedVilla}
+        closeModal={closeModal}
+        handleInputChange={handleInputChange}
+        handleAddressChange={handleAddressChange}
+        handleAmenityChange={handleAmenityChange}
+        handleAddAmenity={handleAddAmenity}
+        handleRemoveAmenity={handleRemoveAmenity}
+        saveChanges={saveChanges}
+        handleImageChange={handleImageChange}
+        handleAddImage={handleAddImage}
+        handleRemoveImage={handleRemoveImage}
+      />
     </div>
   );
 };
 
 export default VillaManagement;
+

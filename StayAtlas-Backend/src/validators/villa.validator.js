@@ -18,7 +18,7 @@ export const OwnerVillaSchema = z.object({
     .regex(/^\d{10}$/, "Phone number must be exactly 10 digits")
     .optional(),
   email: z.string().email().optional(),
-  numberOfRooms: z.number().optional(),
+  numberOfRooms: z.string().optional(),
   images: z.array(z.string()).optional(),
   address: AddressSchema,
   amenities: z.array(z.string()).optional(),

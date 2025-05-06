@@ -10,6 +10,7 @@ import { uploadMultipleImagesParallel } from "../utils/cloudinary.js";
 export const createVilla = asyncHandler(async (req, res) => {
   const files = req.files
   const userId = req.user?._id;
+  // console.log("User ID",req.body)
   //console.log("Request Body",req.body)
   if(!userId){
     throw new ApiError(401, "Unauthorized: User not authenticated");
@@ -54,7 +55,7 @@ export const createVilla = asyncHandler(async (req, res) => {
   .json(
     new ApiResponse(
       201,
-      villa,
+      // villa,
       "Villa successfully listed for review")
   );
 });

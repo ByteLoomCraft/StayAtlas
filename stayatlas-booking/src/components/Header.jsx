@@ -18,6 +18,7 @@ import axios from "../utils/axios"
 import toast from "react-hot-toast";
 
 const Header = () => {
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const match  = useMatch("/viewExclusive/:id")
   
   const {isLoggedIn:isAuth,firstName} = useSelector((state) => state.auth);
@@ -149,6 +150,11 @@ const Header = () => {
                         <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/list")}>
+                      List Your Property
+                      <DropdownMenuShortcut>⇧⌘L</DropdownMenuShortcut>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="cursor-pointer" onClick={() => logoutUser()}>
                       Log out

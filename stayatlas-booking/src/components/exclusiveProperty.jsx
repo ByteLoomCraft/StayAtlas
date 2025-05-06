@@ -42,8 +42,9 @@ export default function ExclusiveProperty() {
     async function fetchExclusive() {
       try{
         const {data:{data}} = await axios.get("/v1/villas");
-        const finalData = data.filter((property) => property.isTrending ===true)
-        // console.log(finalData);
+        // const finalData = data.filter((property) => property.isTrending ===true)
+        const finalData = data.filter((property) => property.isExclusive ===true)
+        console.log(finalData);
         setHotels(finalData);
       }catch(err){
         console.log(err);
@@ -136,7 +137,7 @@ export default function ExclusiveProperty() {
             <div className="relative rounded-t-2xl">
               <img
                 src={property.images[0]}
-                alt={property.name}
+                alt={property.villaName}
                 className="w-full h-60 object-cover rounded-md shadow-md"
               />
               <button
@@ -153,7 +154,7 @@ export default function ExclusiveProperty() {
 
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                {property.name}
+                {property.villaName}
               </h3>
               <p className="text-sm text-gray-600 flex items-center mb-2">
                 <svg className="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -180,7 +181,7 @@ export default function ExclusiveProperty() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-base font-semibold text-gray-900">
-                    ₹{property.pricePerNight.$numberDecimal}
+                    ₹{property.pricePerNight}
                     <span className="text-sm text-gray-500"> /night</span>
                   </p>
                 </div>

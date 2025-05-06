@@ -105,14 +105,14 @@ const loginUser = asyncHandler(async(req,res) =>{
     //password check
     //access and referesh token
     //send cookie
-
+    console.log(req.body)
     const {phoneNumber,password} = req.body
     if(!phoneNumber || !password){
         throw new ApiError(400,"phoneNumber or password is required")
     }
 
     const user = await User.findOne({phoneNumber})
-    //console.log(user)
+    console.log(user)
 
     if(!user){
         throw new ApiError(404,"User does not exist")
