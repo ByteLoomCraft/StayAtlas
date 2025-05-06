@@ -27,7 +27,6 @@ import userRouter from "./routes/user.route.js"
 import villaRoutes from './routes/villa.route.js';
 import bookingRouter from "./routes/booking.route.js"
 import adminRouter from "./routes/adminAction.route.js"
-import bookingRouter from "./routes/booking.route.js";
 import reviewRoutes from "./routes/review.route.js";
 
 //route declaration 
