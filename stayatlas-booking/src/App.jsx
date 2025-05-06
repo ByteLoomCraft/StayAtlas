@@ -84,7 +84,7 @@ function App() {
         },
         {
           path:"/list",
-          element:(<PropertyRequestForm/>)
+          element:(<ProtectedRoutes><PropertyRequestForm/></ProtectedRoutes>)
         },
         {
           path:"/booking/:id",
