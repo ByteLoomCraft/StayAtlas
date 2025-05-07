@@ -22,7 +22,8 @@ export const createBooking = asyncHandler(async (req, res) => {
 
   // On-the-fly calculation
   const price = parseFloat(pricePerNightAtBooking);
-  const subTotal = price * nights * guests;
+  // const subTotal = price * nights * guests;
+  const subTotal = price * nights ;
   const discount = subTotal * (discountPercentApplied / 100);
   const gst = (subTotal - discount) * 0.18;
   const totalAmount = subTotal - discount + gst;
@@ -103,9 +104,10 @@ export const getBookingByIdAdmin = asyncHandler(async (req, res) => {
 //  route   GET /api/v1/bookings/admin
 
 export const getAllBookingAdmin = asyncHandler(async (req, res) => {
+  // made changes, as schema was not matching with the data in the database
   const bookings = await Booking.find()
-    .populate('user', 'name email')
-    .populate('villa', 'name location images')
+    .populate('user', 'firstName lastName email')
+    .populate('villa', 'villaName email phoneNumber images')
     .sort({ createdAt: -1 });
 
   res.status(200).json(new ApiResponse(200, bookings));

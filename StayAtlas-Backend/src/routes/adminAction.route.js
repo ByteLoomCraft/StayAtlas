@@ -1,5 +1,17 @@
 import { Router } from "express";
-import { ApprovePendingVillas, deleteVillaById, editVillaDetailsById, getAllApprovedVillas, getAllPendingVillas, getAllRejectedVillas, getUserCount, reviewPendingVillas, totalCountOfVillasByApprovalStatus } from "../controllers/adminAction.controller.js";
+import { 
+    ApprovePendingVillas, 
+    deleteVillaById, 
+    editVillaDetailsById, 
+    getAllApprovedVillas, 
+    getAllPendingVillas, 
+    getAllRejectedVillas, 
+    getUserCount, 
+    reviewPendingVillas, 
+    totalCountOfVillasByApprovalStatus, 
+    approvePendingBookingById,
+    rejectPendingBookingById
+} from "../controllers/adminAction.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { isAdmin } from "../middlewares/admin.middleware.js";
 
@@ -8,7 +20,7 @@ import { isAdmin } from "../middlewares/admin.middleware.js";
 const router = Router()
 
 router.use(verifyJWT)
-// router.use(isAdmin)
+router.use(isAdmin)
 
 router.route("/get-all-pending-villa").get(getAllPendingVillas)
 router.route("/get-all-approved-villa").get(getAllApprovedVillas)
@@ -19,6 +31,10 @@ router.route("/edit-villaById/:id").post(editVillaDetailsById)
 router.route("/delete-villaById/:id").post(deleteVillaById)
 router.route("/villa-count").get(totalCountOfVillasByApprovalStatus)
 router.route("/user-count").get(getUserCount)
+
+// accept user booking or reject
+router.route("/accept-user-booking/:id").post(approvePendingBookingById)
+router.route("/reject-user-booking/:id").post(rejectPendingBookingById)
 
 
 export default router
