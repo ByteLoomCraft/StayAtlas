@@ -148,3 +148,17 @@ export const getApprovedVillaById = asyncHandler(async (req, res) => {
     new ApiResponse(200, villa, "Approved villa fetched successfully")
   );
 });
+
+// Owner can see all their villas whether it is pending, rejected or approved
+export const getMyVillas = asyncHandler(async (req, res) => {
+  const ownerId = req.user._id;
+
+  const villas = await Villa.find({
+    ownerId,
+    isDeleted: { $ne: true }, // only show active villas
+  }).sort({ createdAt: -1 }); // newest first
+
+  res.status(200).json(
+    new ApiResponse(200, villas, "Fetched all villas for current owner")
+  );
+});
