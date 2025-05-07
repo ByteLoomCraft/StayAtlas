@@ -1,3 +1,4 @@
+import { NotListedLocation } from '@mui/icons-material';
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
@@ -7,6 +8,8 @@ const initialState = {
     firstName:null,
     lastName:null,
     userPhone: null,
+    email: null,
+    dob: null,
 }
 export const authSlice = createSlice({
     name: 'auth',
@@ -19,6 +22,8 @@ export const authSlice = createSlice({
             state.firstName = action.payload.firstName;
             state.lastName = action.payload.lastName;
             state.userPhone = action.payload.phoneNumber;
+            state.email = action.payload.email;
+            state.dob = action.payload.dob;
         },
         logout: (state) => {
             state.isLoggedIn = false;
@@ -27,6 +32,8 @@ export const authSlice = createSlice({
             state.firstName = null;
             state.lastName = null;
             state.userPhone = null;
+            state.email = null;
+            state.dob = null;
         },
 
     }
