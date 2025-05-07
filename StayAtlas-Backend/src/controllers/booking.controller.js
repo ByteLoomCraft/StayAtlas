@@ -22,7 +22,7 @@ export const createBooking = asyncHandler(async (req, res) => {
 
   // On-the-fly calculation
   const price = parseFloat(pricePerNightAtBooking);
-  const subTotal = price * nights;
+  const subTotal = price * nights * guests;
   const discount = subTotal * (discountPercentApplied / 100);
   const gst = (subTotal - discount) * 0.18;
   const totalAmount = subTotal - discount + gst;
