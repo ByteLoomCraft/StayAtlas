@@ -16,6 +16,7 @@ export default function BookingManagement() {
         const response = await axios.get("/v1/bookings")
         if(response.data.statusCode === 200){
           setBookings(response.data.data)
+          console.log("Bookings: ", response.data.data)
         }else{
           toast.error("Error fetching bookings")
         }

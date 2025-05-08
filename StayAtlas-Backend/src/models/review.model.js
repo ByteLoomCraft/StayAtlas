@@ -8,10 +8,10 @@ const reviewSchema = new mongoose.Schema(
       required: true,
     },
 
-    property: {
+    villa: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Property", // hotel/villa 
-      required: false,
+      ref: "Villa",
+      required: function() { return !this.isSiteReview },  // Only required if it's not a site review
     },
 
     rating: {
@@ -22,31 +22,40 @@ const reviewSchema = new mongoose.Schema(
     },
 
     comment: {
-        type: String,
-        trim: true,
-        maxlength: 1000,
-      },
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
 
-      isSiteReview: {
-        type: Boolean,
-        default: false,
-      },
+    isSiteReview: {
+      type: Boolean,
+      default: false,  // Default to false, if not provided will be considered as villa review
+    },
 
-      avatar: {
-        type: String,
-        default: "", // Optional: default avatar URL
-      },
-      
+    avatar: {
+      type: String,
+      default: "", // Optional: default avatar URL
+    },
   },
   { timestamps: true }
 );
 
-// Allow only 1 review per user per property (but allow multiple site reviews)
-reviewSchema.index({ property: 1, user: 1 }, {
-  unique: true,
-  partialFilterExpression: { property: { $type: "objectId" } },
-});                                                             
+// For villa reviews (1 per user per villa)
+reviewSchema.index(
+  { villa: 1, user: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { villa: { $type: "objectId" } },
+  }
+);
+
+// For site reviews (1 per user)
+reviewSchema.index(
+  { user: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { isSiteReview: true },
+  }
+);
 
 export const Review = mongoose.model("Review", reviewSchema);
-
-

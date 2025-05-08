@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import axios from "../utils/axios"
+import { Loader } from "lucide-react";
 
 export default function PropertyRequestPage() {
   const [formData, setFormData] = useState({ address: {} });
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [customAmenity, setCustomAmenity] = useState("");
   const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   // console.log(images);
   // Define address fields to match Zod schema
   const addressFields = [
@@ -76,6 +78,7 @@ export default function PropertyRequestPage() {
       images, // array of File objects
     };
     console.log(finalData);
+    setIsLoading(true);
     try{
       const formDataToSend = new FormData();
       for (const key in finalData) {
@@ -112,6 +115,7 @@ export default function PropertyRequestPage() {
       toast.error("Error while submitting the form. Please try again.");
       console.error(err);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -262,9 +266,9 @@ export default function PropertyRequestPage() {
 
           <button
             type="submit"
-            className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-200"
+            className="w-full py-3 cursor-pointer bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-200"
           >
-            Send Request
+            {isLoading ? <div className="flex justify-center items-center"><Loader className="animate-spin"/></div> : "Send Request"}
           </button>
         </form>
       </div>
