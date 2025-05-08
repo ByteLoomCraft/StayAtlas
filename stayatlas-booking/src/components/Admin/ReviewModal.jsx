@@ -176,7 +176,7 @@ export const ReviewModal = ({
                 />
                 <label className="text-sm font-medium text-gray-700">Is Exclusive</label>
               </div>
-              <div className="col-span-2">
+              {/* <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <div className="space-y-2">
                   {editedVilla.category.map((cat, idx) => (
@@ -192,8 +192,8 @@ export const ReviewModal = ({
                   ))}
                   <button onClick={handleAddCategory} className="text-blue-600 hover:text-blue-800 text-sm font-medium">Add Category</button>
                 </div>
-              </div>
-              <div className="col-span-2">
+              </div> */}
+              {/* <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
                 <div className="space-y-4">
                   {editedVilla.availability.map((slot, idx) => (
@@ -232,7 +232,7 @@ export const ReviewModal = ({
                   ))}
                   <button onClick={handleAddAvailability} className="text-blue-600 hover:text-blue-800 text-sm font-medium">Add Availability Slot</button>
                 </div>
-              </div>
+              </div> */}
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Approval Status</label>
                 <select

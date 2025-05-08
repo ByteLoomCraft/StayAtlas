@@ -23,6 +23,8 @@ export const createBooking = asyncHandler(async (req, res) => {
     paymentMethod,
   } = req.body;
 
+  console.log(req.body)
+
   // ✅ Step 1: Validate input using Zod schema
   const parsedData = createBookingSchema.safeParse({
     villa,
@@ -35,6 +37,8 @@ export const createBooking = asyncHandler(async (req, res) => {
     couponCode,
     paymentMethod,
   });
+
+  console.log(parsedData.error)
 
   if (!parsedData.success) {
     throw new ApiError(400, parsedData.error.errors[0].message);

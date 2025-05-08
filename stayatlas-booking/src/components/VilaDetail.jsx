@@ -17,7 +17,7 @@ import {
 import { FaHotjar } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { DoorClosed, Dot, DotSquareIcon } from "lucide-react";
+import { DoorClosed, Dot, DotSquareIcon, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "../utils/axios"
 import { useParams } from "react-router-dom";
@@ -33,6 +33,7 @@ const VilaDetail = ({property=null}) => {
   const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
   const [couponCode, setCouponCode] = useState("");
   const [bookNow, setBookNow] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [charges, setCharges] = useState({
     tariff: 5000,
     gst: 18,
@@ -119,11 +120,12 @@ const VilaDetail = ({property=null}) => {
   const handleBooking = async() => {
     const timeDiff = Math.abs(endDate - startDate);
     const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    console.log("Total Nights:", diffDays);
+    // console.log("Total Nights:", diffDays);
+    setIsLoading(true)
     try{
       const bookingData = {
         villa:id,
-        guests:adults+pets+children,
+        guests:{adults,pets,children},
         adults,
         pricePerNightAtBooking:property?.pricePerNight,
         pets,
@@ -151,6 +153,7 @@ const VilaDetail = ({property=null}) => {
     }catch(error){
       console.error("Error fetching exclusive data:", error);
     }
+    setIsLoading(false)
   }
 
   if(property===null){
@@ -383,7 +386,7 @@ const VilaDetail = ({property=null}) => {
           </p>
 
           <button disabled={!bookNow} onClick={handleBooking} className={`cursor-pointer w-full text-white py-2 rounded font-bold ${bookNow ? "bg-black" : "bg-gray-400"}`}>
-            BOOK NOW
+            {isLoading ? <div className="flex justify-center"><Loader className="animate-spin"/></div> : "BOOK NOW"}
           </button>
           <button className="w-full border py-2 rounded text-xs font-bold">
             CONTACT YOUR HOST

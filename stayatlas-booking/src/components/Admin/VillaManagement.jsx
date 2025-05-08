@@ -45,7 +45,7 @@ const VillaManagement = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <p className="text-sm text-gray-500">Owner</p>
-              <p className="font-medium">{`${villa?.ownerId.firstName} ${villa?.ownerId.lastName}`}</p>
+              <p className="font-medium">{`${villa?.ownerId?.firstName} ${villa?.ownerId?.lastName}`}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Contact</p>
@@ -196,7 +196,9 @@ const VillaManagement = () => {
       setFilteredManageVillas(filtered);
     }else{
       const filtered = viewVillasData.filter((villa) =>
-        villa.phoneNumber.toLowerCase().includes(query)
+        villa.phoneNumber.toLowerCase().includes(query) ||
+        villa.villaOwner.toLowerCase().includes(query) || 
+        villa.villaName.toLowerCase().includes(query)
       );
       setFilteredViewVillas(filtered);
     }
@@ -331,14 +333,18 @@ const VillaManagement = () => {
 
 
     const saveChanges = async() => {
-      console.log("Saving changes for villa:", editedVilla);
+      // console.log("Saving changes for villa:", editedVilla);
+      if(editedVilla.approvalStatus === "pending"){
+        setModalOpen(false);
+        return
+      }
       editedVilla.numberOfRooms =  String(editedVilla.numberOfRooms)
       editedVilla.pricePerNight =  Number(editedVilla.pricePerNight)
       editedVilla.discountPercent =  Number(editedVilla.discountPercent)
       if(editedVilla.approvalStatus === "approved"){
         try{
           const response = await axios.post(`/v1/admin/approve-pending-villa/${editedVilla._id}`, editedVilla);
-          console.log("Response:", response.data);
+          // console.log("Response:", response.data);
           if(response.data.statusCode == 200){
             toast.success("Accepted successfully");
             setManageVillasData(prev => prev.filter(villa => villa._id !== editedVilla._id));
@@ -356,7 +362,7 @@ const VillaManagement = () => {
       }else if(editedVilla.approvalStatus === "rejected"){
         try{
           const response = await axios.post(`/v1/admin/delete-villaById/${editedVilla._id}`, editedVilla);
-          console.log("Response:", response.data);
+          // console.log("Response:", response.data);
           if(response.data.statusCode == 200){
             toast.success("Rejected successfully");
             setManageVillasData(prev => prev.filter(villa => villa._id !== editedVilla._id));
@@ -370,6 +376,7 @@ const VillaManagement = () => {
           console.error("Error saving changes:", err);
         }
       }
+      window.location.reload()
       
       setModalOpen(false);
     };
@@ -384,34 +391,29 @@ const VillaManagement = () => {
     <div className="w-full overflow-hidden min-h-screen bg-gray-100 p-4">
 
       <div className="flex justify-center gap-4 mb-6">
-        <button
-          onClick={() => setActiveTab(0)}
-          className={`px-4 py-2 rounded-md transition ${
-            activeTab === 0 ? "bg-blue-600 text-white" : "bg-gray-300 hover:bg-gray-400"
-          }`}
-        >
-          Manage Villas
-        </button>
-        <button
-          onClick={() => setActiveTab(1)}
-          className={`px-4 py-2 rounded-md transition ${
-            activeTab === 1 ? "bg-blue-600 text-white" : "bg-gray-300 hover:bg-gray-400"
-          }`}
-        >
-          View Villas
-        </button>
-        {/* <input
-          type="text"
-          placeholder="Search by mobile number"
-          value={searchQuery}
-          onChange={handleSearch}  
-          className="px-4 py-2 border rounded-md w-1/3"
-        /> */}
+        <div className="flex flex-wrap gap-4">
+          <button
+            onClick={() => setActiveTab(0)}
+            className={`px-4 py-2 rounded-md transition ${
+              activeTab === 0 ? "bg-blue-600 text-white" : "bg-gray-300 hover:bg-gray-400"
+            }`}
+          >
+            Manage Villas
+          </button>
+          <button
+            onClick={() => setActiveTab(1)}
+            className={`px-4 py-2 rounded-md transition ${
+              activeTab === 1 ? "bg-blue-600 text-white" : "bg-gray-300 hover:bg-gray-400"
+            }`}
+          >
+            View Villas
+          </button>
+        </div>
         <div className="flex items-center border border-gray-400 rounded-md px-2 w-1/3 focus-within:border-blue-500 focus-within:border-2">
           <Search className="text-gray-500 mr-2" />
           <input
             type="text"
-            placeholder="Search by mobile number"
+            placeholder="Search by villa name, mobile number or owner name"
             value={searchQuery}
             onChange={handleSearch}
             className="py-2 outline-none w-full"
