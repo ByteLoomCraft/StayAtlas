@@ -1,11 +1,14 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import Booking from '../models/booking.model.js';
+import { createBookingSchema } from "../validators/booking.validator.js";
+import Booking from "../models/booking.model.js";
 import {Villa} from '../models/villa.model.js';
+import {User} from '../models/user.model.js';
 
 //  desc    Create a new booking
 //  route   POST /api/v1/bookings
+//  access  Private
 
 export const createBooking = asyncHandler(async (req, res) => {
   const {
@@ -20,7 +23,52 @@ export const createBooking = asyncHandler(async (req, res) => {
     paymentMethod,
   } = req.body;
 
-  // On-the-fly calculation
+  // ✅ Step 1: Validate input using Zod schema
+  const parsedData = createBookingSchema.safeParse({
+    villa,
+    checkIn,
+    checkOut,
+    guests,
+    pricePerNightAtBooking,
+    nights,
+    discountPercentApplied,
+    couponCode,
+    paymentMethod,
+  });
+
+  if (!parsedData.success) {
+    throw new ApiError(400, parsedData.error.errors[0].message);
+  }
+
+  // ✅ Step 2: Date conversion and logic check
+  const checkInDate = new Date(checkIn);
+  const checkOutDate = new Date(checkOut);
+
+  if (checkOutDate <= checkInDate) {
+    throw new ApiError(400, "Check-out date must be after check-in date");
+  }
+
+ // ✅ Step 3: Overlapping booking check
+const existingBooking = await Booking.findOne({
+  villa,
+  status: { $ne: "Cancelled" },
+  $or: [
+    {
+      checkIn: { $lt: checkOutDate },
+      checkOut: { $gt: checkInDate }
+    }
+  ]
+});
+
+if (existingBooking) {
+  return res.status(400).json({
+    success: false,
+    message: "Villa is already booked in the selected date range. Please select a different date.",
+  });
+}
+
+
+  // ✅ Step 4: Calculate total amount
   const price = parseFloat(pricePerNightAtBooking);
   // const subTotal = price * nights * guests;
   const subTotal = price * nights ;
@@ -28,18 +76,19 @@ export const createBooking = asyncHandler(async (req, res) => {
   const gst = (subTotal - discount) * 0.18;
   const totalAmount = subTotal - discount + gst;
 
-  console.log("Booking calculation:", {
-    subTotal,
-    discount,
-    gst,
-    totalAmount,
-  });
+  // Fetch villa details
+const villaDetails = await Villa.findById(villa);
 
+// Fetch user details
+const userDetails = await User.findById(req.user._id);
+
+
+  // ✅ Step 5: Create booking
   const booking = await Booking.create({
     villa,
     user: req.user._id,
-    checkIn,
-    checkOut,
+    checkIn: checkInDate,
+    checkOut: checkOutDate,
     guests,
     pricePerNightAtBooking,
     nights,
@@ -49,13 +98,24 @@ export const createBooking = asyncHandler(async (req, res) => {
     paymentMethod,
   });
 
+  // ✅ Step 6: Send response
   res.status(201).json(
     new ApiResponse(201, {
       booking,
-      calculation: { subTotal, discount, gst, totalAmount }
+      calculation: {
+        subTotal,
+        discount,
+        gst,
+        totalAmount
+      },
+      villaDetails, // Villa details response mein add karna
+      userDetails, // User details response mein add karna
     }, "Booking created successfully")
   );
 });
+
+
+
 
 //  desc    Get a single booking by ID
 //  route   GET /api/v1/bookings/:id
@@ -104,10 +164,9 @@ export const getBookingByIdAdmin = asyncHandler(async (req, res) => {
 //  route   GET /api/v1/bookings/admin
 
 export const getAllBookingAdmin = asyncHandler(async (req, res) => {
-  // made changes, as schema was not matching with the data in the database
   const bookings = await Booking.find()
-    .populate('user', 'firstName lastName email')
-    .populate('villa', 'villaName email phoneNumber images')
+    .populate('user', 'name email')
+    .populate('villa', 'name location images')
     .sort({ createdAt: -1 });
 
   res.status(200).json(new ApiResponse(200, bookings));
