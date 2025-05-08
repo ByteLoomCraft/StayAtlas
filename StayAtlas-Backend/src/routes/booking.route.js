@@ -32,7 +32,9 @@ router.get('/user/:userId', verifyJWT, getUserBookings);
 router.get('/admin/:id', verifyJWT, isAdmin, getBookingByIdAdmin);
 
 //  Admin only: View all booking 
-router.get('/admin', verifyJWT, isAdmin, getAllBookingAdmin);
+// This route was not working as expected, so I commented it out.
+// router.get('/admin', verifyJWT, isAdmin, getAllBookingAdmin); 
+router.get('/', verifyJWT, isAdmin, getAllBookingAdmin);
 
 
 //  Authenticated users can cancel

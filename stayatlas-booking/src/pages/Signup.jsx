@@ -67,7 +67,8 @@ export default function SignupForm() {
     if (Object.keys(newErrors).length === 0) {
       // alert("Form submitted successfully!");
       try{
-        const response = await axios.post(`/v1/users/register`,form)
+        const { confirmPassword, ...formDataToSend } = form;
+        const response = await axios.post(`/v1/users/register`,formDataToSend)
         const data = response.data;
         if(data.statusCode === 200){
           toast.success("Registration successful!")
@@ -88,7 +89,7 @@ export default function SignupForm() {
           countryCode: "+91",
           dob: "",
           password: "",
-          confirmPassword: "",
+          confirmPassword:"",
           email: ""
         });
       }

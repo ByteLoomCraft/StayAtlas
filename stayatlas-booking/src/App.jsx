@@ -23,6 +23,7 @@ import ViewExclusive from "./pages/ViewExclusive"
 import ExclusiveLayout from "./layout/ExclusiveLayout"
 import AdminDashboard from "./pages/AdminDashboard"
 import PropertyRequestForm from "./pages/listform"
+import AdminProtectedRoute from "./components/AdminProtectedRoute"
 
 function App() {
 
@@ -60,7 +61,7 @@ function App() {
   const appRouter = createBrowserRouter([
     {
       path:"/admin",
-      element: <AdminDashboard/>,
+      element: <AdminProtectedRoute><AdminDashboard/></AdminProtectedRoute>,
       errorElement: <ErrorPage />
     },
     {

@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import { Villa } from "../models/villa.model.js";
+import Booking  from "../models/booking.model.js"
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -368,6 +369,74 @@ const getUserCount = asyncHandler(async (req, res) => {
 });
 
 
+const approvePendingBookingById = asyncHandler(async (req, res) => {
+    try{
+        const { id: bookingId } = req.params;
+        if (!bookingId) {
+            throw new ApiError(400, "Booking ID is required!");
+        }
+    
+        // Find the booking by its ID
+        const booking = await Booking.findById(bookingId);
+    
+        if (!booking) {
+            throw new ApiError(404, "Booking not found!");
+        }
+    
+        // Update the booking status to "approved"
+        booking.status = "Confirmed";
+        booking.isPaid = true; // Assuming the booking is paid upon approval
+        await booking.save();
+    
+        return res.status(200).json({
+            message: "Booking approved successfully!",
+            statusCode:200,
+            booking
+        });
+
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({
+            message: "Error in approving booking",
+            error: err.message
+        })
+    }
+})
+
+const rejectPendingBookingById = asyncHandler(async (req, res) => {
+    try{
+        const { id: bookingId } = req.params;
+        if (!bookingId) {
+            throw new ApiError(400, "Booking ID is required!");
+        }
+    
+        // Find the booking by its ID
+        const booking = await Booking.findById(bookingId);
+    
+        if (!booking) {
+            throw new ApiError(404, "Booking not found!");
+        }
+    
+        // Update the booking status to "rejected"
+        booking.status = "Cancelled";
+        await booking.save();
+    
+        return res.status(200).json({
+            message: "Booking rejected successfully!",
+            statusCode:200,
+            booking
+        });
+
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({
+            message: "Error in Rejecting booking",
+            error: err.message
+        })
+    }
+})
+
+
 export {
     getAllPendingVillas,
     getAllApprovedVillas,
@@ -377,5 +446,7 @@ export {
     editVillaDetailsById,
     deleteVillaById,
     totalCountOfVillasByApprovalStatus,
-    getUserCount
+    getUserCount,
+    approvePendingBookingById,
+    rejectPendingBookingById
 }
