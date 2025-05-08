@@ -165,8 +165,8 @@ export const getBookingByIdAdmin = asyncHandler(async (req, res) => {
 
 export const getAllBookingAdmin = asyncHandler(async (req, res) => {
   const bookings = await Booking.find()
-    .populate('user', 'name email')
-    .populate('villa', 'name location images')
+    .populate('user', 'firstName lastName email')
+    .populate('villa', 'villaName villaOwner location images')
     .sort({ createdAt: -1 });
 
   res.status(200).json(new ApiResponse(200, bookings));
