@@ -26,7 +26,7 @@ router.post('/', verifyJWT, createBooking);
 router.get('/:id', verifyJWT, getBookingById);
 
 //  Authenticated users can see their own bookings
-router.get('/user/:userId', verifyJWT, getUserBookings);
+router.get('/user', verifyJWT, getUserBookings); //previosly /user/:userId
 
 //  Admin only: View a booking by ID
 router.get('/admin/:id', verifyJWT, isAdmin, getBookingByIdAdmin);

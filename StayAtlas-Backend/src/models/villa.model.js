@@ -23,7 +23,7 @@ const villaSchema = new mongoose.Schema({
   },
   villaOwner:{
     type: String,
-    require:true
+    required:true
   },
   villaName: {
     type: String,
