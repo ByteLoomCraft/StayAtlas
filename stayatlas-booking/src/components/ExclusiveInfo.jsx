@@ -163,17 +163,19 @@ const ExclusiveInfo = () => {
                   {/* <div className="text-sm text-gray-700 mb-3">
                     {property.beds} Beds • {property.baths} Baths • {property.guests} Guests
                   </div> */}
-                  <div className="text-sm text-gray-700 mb-3 flex space-x-1">
+                  {/* <div className="text-sm text-gray-700 mb-3 flex space-x-1">
                     {
                       property?.amenities.length > 0 && (
                         property.amenities.map((amenity, index) => (
                           <div >
-                            {/* {amenity} {index < property.amenities.length - 1 && "•"} */}
                             {(index > 3) ? "" : `${amenity} `} {index < 3 && "•"}
                           </div>
                         ))
                       )
                     }
+                  </div> */}
+                  <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3">
+                    {property?.amenities?.join(' • ')}
                   </div>
 
                   <div className="flex justify-between items-center">
@@ -234,7 +236,7 @@ const ExclusiveInfo = () => {
           <div className="text-2xl text-slate-700 font-semibold py-2">
             {property.beds} Beds &bull; {property.baths} Baths &bull; {property.guests} Guests
           </div> */}
-          <div className="text-lg text-gray-700 mb-3 flex space-x-1">
+          {/* <div className="text-lg text-gray-700 mb-3 flex space-x-1">
             {
               property?.amenities.length > 0 && (
                 property.amenities.map((amenity, index) => (
@@ -244,6 +246,9 @@ const ExclusiveInfo = () => {
                 ))
               )
             }
+          </div> */}
+          <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3">
+            {property?.amenities?.join(' • ')}
           </div>
 
           {/* Price */}

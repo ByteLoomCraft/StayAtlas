@@ -163,7 +163,7 @@ export default function ExclusiveProperty() {
                 </svg>
                 {property.address.city}
               </p>
-              <div className="text-sm text-gray-700 mb-3 flex space-x-1">
+              {/* <div className="text-sm text-gray-700 mb-3 flex space-x-1">
                 {
                   property?.amenities.length > 0 && (
                     property.amenities.map((amenity, index) => (
@@ -173,6 +173,9 @@ export default function ExclusiveProperty() {
                     ))
                   )
                 }
+              </div> */}
+              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3">
+                {property?.amenities?.join(' • ')}
               </div>
               {/* <div className="text-sm text-gray-700 mb-3">
                 {property.beds} Beds • {property.baths} Baths • {property.guests} Guests

@@ -186,11 +186,11 @@ const VilaDetail = ({property=null}) => {
               <FaHouse /> {property.numberOfRooms} BHK
             </div>
             <div className="flex items-center gap-2 border px-3 py-1 rounded-full text-sm">
-              <FaPersonWalkingLuggage /> 10 MAX GUEST
+              <FaPersonWalkingLuggage /> {property.numberOfRooms*2} MAX GUEST
             </div>
-            <div className="flex items-center gap-2 border px-3 py-1 rounded-full text-sm">
+            {/* <div className="flex items-center gap-2 border px-3 py-1 rounded-full text-sm">
               <FaSink /> 8 BATH
-            </div>
+            </div> */}
             <div className="flex items-center gap-2 border px-3 py-1 rounded-full text-sm">
               <DoorClosed /> {property.numberOfRooms} ROOMS
             </div>

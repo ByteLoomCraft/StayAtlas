@@ -87,7 +87,7 @@ export default function PropertyListingGrid() {
                 <span>{property.guests} guests</span>
               </div> */}
 
-              <div className="text-sm text-gray-700 mb-3 flex space-x-1">
+              {/* <div className="text-sm text-gray-700 mb-3 flex space-x-1">
                 {
                   property?.amenities.length > 0 && (
                     property.amenities.map((amenity, index) => (
@@ -97,6 +97,9 @@ export default function PropertyListingGrid() {
                     ))
                   )
                 }
+              </div> */}
+              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3">
+                {property?.amenities?.join(' • ')}
               </div>
               
               <div className="flex justify-between items-center">
