@@ -20,7 +20,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { DoorClosed, Dot, DotSquareIcon, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "../utils/axios"
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const VilaDetail = ({property=null}) => {
   const {id} = useParams()
@@ -41,6 +41,7 @@ const VilaDetail = ({property=null}) => {
     totalNights:0,
     totalCost: 5000
   })
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (property !== null && startDate && endDate) {
@@ -147,6 +148,7 @@ const VilaDetail = ({property=null}) => {
         setAdults(1)
         setPets(0)
         setChildren(0)
+        navigate("/profile")
       }else{
         toast.error("Booking Failed");
       }
@@ -351,9 +353,9 @@ const VilaDetail = ({property=null}) => {
             />
           </div>
 
-          <button className="w-full bg-black text-white font-bold py-2 rounded">
+          {/* <button className="w-full bg-black text-white font-bold py-2 rounded">
             VIEW OFFERS
-          </button>
+          </button> */}
 
           <table className="w-full text-sm mt-2">
             <tbody>
@@ -385,7 +387,7 @@ const VilaDetail = ({property=null}) => {
             given on phone.
           </p>
 
-          <button disabled={!bookNow} onClick={handleBooking} className={`cursor-pointer w-full text-white py-2 rounded font-bold ${bookNow ? "bg-black" : "bg-gray-400"}`}>
+          <button disabled={!bookNow} onClick={handleBooking} className={`${bookNow ? "cursor-pointer" : "cursor-not-allowed"} w-full text-white py-2 rounded font-bold ${bookNow ? "bg-black" : "bg-gray-400"}`}>
             {isLoading ? <div className="flex justify-center"><Loader className="animate-spin"/></div> : "BOOK NOW"}
           </button>
           <button className="w-full border py-2 rounded text-xs font-bold">
