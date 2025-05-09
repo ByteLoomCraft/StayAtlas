@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import axios from "../utils/axios"
 import { Loader } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function PropertyRequestPage() {
   const [formData, setFormData] = useState({ address: {} });
@@ -9,6 +10,7 @@ export default function PropertyRequestPage() {
   const [customAmenity, setCustomAmenity] = useState("");
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate()
   // console.log(images);
   // Define address fields to match Zod schema
   const addressFields = [
@@ -104,10 +106,12 @@ export default function PropertyRequestPage() {
       console.log(response.data);
       if(response.data.statusCode === 201){
         toast.success("Villa successfully listed for review.");
+        setFormData()
         setFormData({ address: {} });
         setSelectedAmenities([]);
         setImages([]);
         setCustomAmenity("");
+        navigate("/")
       }else{
         toast.error("Error while submitting the form. Please try again.");
       }

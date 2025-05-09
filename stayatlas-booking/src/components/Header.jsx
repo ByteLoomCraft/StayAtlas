@@ -160,7 +160,7 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                   <Avatar className="w-10 h-10 cursor-pointer">
-                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                    <AvatarImage src={`https://api.dicebear.com/5.x/initials/svg/seed=${firstName}`} alt={firstName} />
                     <AvatarFallback>{firstName}</AvatarFallback>
                   </Avatar>
                   </DropdownMenuTrigger>
