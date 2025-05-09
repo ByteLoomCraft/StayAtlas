@@ -3,6 +3,7 @@ import { useMatch, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/state/features/authSlice";
 import logo from "../assets/stay.jpg";
+import { Bars3Icon } from '@heroicons/react/24/outline';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,9 +72,13 @@ const Header = () => {
               </a>
 
               <div className="relative group">
-                <button className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1">
-                  LOCATION <span className="text-xs">▼</span>
+                <button className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1 
+                                   hover:after:w-full after:transition-all after:duration-300
+                                   after:absolute after:bottom-0 after:left-0 after:h-0.5
+                                   after:bg-[#D6AE7B] after:w-0">
+                  LOCATION {/* <span className="text-xs">▼</span> */}
                 </button>
+                {/*
                 <div className="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 bg-white text-gray-800 min-w-[180px] shadow-xl rounded-xl overflow-hidden mt-2 z-40">
                   <a
                     href="#"
@@ -94,12 +99,17 @@ const Header = () => {
                     Other Locations
                   </a>
                 </div>
-              </div>
+                */}
+              </div> 
 
               <div className="relative group">
-                <button onClick={() => navigate("/exclusive")} className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1">
-                  EXCLUSIVE <span className="text-xs">▼</span>
+                <button onClick={() => navigate("/exclusive")} className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1
+                                                                          hover:after:w-full after:transition-all after:duration-300
+                                                                          after:absolute after:bottom-0 after:left-0 after:h-0.5
+                                                                           after:bg-[#D6AE7B] after:w-0">
+                  EXCLUSIVE {/* <span className="text-xs">▼</span> */}
                 </button>
+                {/*
                 <div className="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 bg-white text-gray-800 min-w-[180px] shadow-xl rounded-xl overflow-hidden mt-2 z-40">
                   <a
                     href="#"
@@ -120,6 +130,19 @@ const Header = () => {
                     Pool Homes
                   </a>
                 </div>
+                */}
+              </div>
+
+              <div className="relaltive group">
+                <a
+                  href="/explore"
+                  className="text-[#D6AE7B] font-semibold text-sm relative
+                  hover:after:w-full after:transition-all after:duration-300
+                  after:absolute after:bottom-0 after:left-0 after:h-0.5
+                  after:bg-[#D6AE7B] after:w-0"
+                >
+                  EXPLORE
+                </a>
               </div>
 
               <a
@@ -137,7 +160,7 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                   <Avatar className="w-10 h-10 cursor-pointer">
-                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                    <AvatarImage src={`https://api.dicebear.com/5.x/initials/svg/seed=${firstName}`} alt={firstName} />
                     <AvatarFallback>{firstName}</AvatarFallback>
                   </Avatar>
                   </DropdownMenuTrigger>
@@ -172,7 +195,8 @@ const Header = () => {
                 onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
                 className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1"
               >
-                MENU <span className="text-xs">▼</span>
+                  <Bars3Icon className="h-5 w-5 sm:hidden" />
+                  <span className="hidden sm:inline">MENU</span>
               </button>
 
               {isMobileDropdownOpen && (
@@ -182,6 +206,18 @@ const Header = () => {
                     className="block px-4 py-3 hover:bg-[#D6AE7B] hover:text-white transition-all duration-200"
                   >
                     HOME
+                  </a>
+                  <a
+                    href="/exclusive"
+                    className="block px-4 py-3 hover:bg-[#D6AE7B] hover:text-white transition-all duration-200"
+                  >
+                    EXCLUSIVE
+                  </a>
+                  <a
+                    href="/explore"
+                    className="block px-4 py-3 hover:bg-[#D6AE7B] hover:text-white transition-all duration-200"
+                  >
+                    EXPLORE
                   </a>
                   <a
                     href="https://wa.me/918591131447"

@@ -1,36 +1,56 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import axios from "../utils/axios"
+import axios from "../utils/axios";
 import { Loader } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+// Initial form state matches Zod schema expectations
+const initialFormData = {
+  villaOwner: "",
+  villaName: "",
+  email: "",
+  phoneNumber: "",
+  numberOfRooms: "",
+  propertyType: "",
+  address: {
+    street: "",
+    landmark: "",
+    city: "",
+    state: "",
+    country: "",
+    zipcode: ""
+  },
+  amenities: [],
+  description: ""
+};
 
 export default function PropertyRequestPage() {
-  const [formData, setFormData] = useState({ address: {} });
-  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const minPhotos = 3;
+  const [formData, setFormData] = useState(initialFormData);
+  const [selectedAmenities, setSelectedAmenities] = useState("");
+  const [allAmenities, setAllAmenities] = useState([
+    "Air Conditioner",
+    "Private Parking",
+    "Barbeque (Chargeable)",
+    "Microwave",
+    "Sofa",
+    "Dining Table",
+    "Flat Screen Tv",
+    "Wardrobe",
+    "Refrigerator",
+    "WiFi",
+  ]);
   const [customAmenity, setCustomAmenity] = useState("");
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  // console.log(images);
-  // Define address fields to match Zod schema
-  const addressFields = [
-    "street",
-    "landmark",
-    "city",
-    "state",
-    "country",
-    "zipcode",
-  ];
+  const navigate = useNavigate();
+
+  const addressFields = ["street", "landmark", "city", "state", "country", "zipcode"];
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
 
-   // — Convert phoneNumber and numberOfRooms to numbers —
-    if (type === "number" && (name === "phoneNumber" || name === "numberOfRooms")) {
-      const numericValue = Number(value);           // or parseInt(value, 10)
-      setFormData(prev => ({ ...prev, [name]: numericValue }));
-      return;
-    }
-
-    // Handle amenities checkboxes
+    // Amenities checkboxes
     if (type === "checkbox" && name === "amenities") {
       const amenity = value;
       setSelectedAmenities((prev) =>
@@ -39,83 +59,87 @@ export default function PropertyRequestPage() {
       return;
     }
 
-    // Handle address inputs
+    // Address fields
     if (addressFields.includes(name)) {
       setFormData((prev) => ({
         ...prev,
         address: {
           ...prev.address,
-          [name]: value,
-        },
+          [name]: value
+        }
       }));
       return;
     }
 
-    // Handle file inputs
+    // File inputs (images)
     if (type === "file") {
       const fileArray = Array.from(files);
-      // setImages((prev) => ([...prev,fileArray]));
-      setImages(prev => [...prev, ...fileArray]);
+      setImages((prev) => [...prev, ...fileArray]);
       return;
     }
 
-    // Handle all other inputs
+    // All other inputs
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCustomAmenity = () => {
     if (customAmenity.trim()) {
+      setAllAmenities(prev => [...prev,customAmenity.trim()])
       setSelectedAmenities((prev) => [...prev, customAmenity.trim()]);
       setCustomAmenity("");
     }
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const finalData = {
-      ...formData,
-      amenities: selectedAmenities,
-      images, // array of File objects
-    };
-    console.log(finalData);
+    console.log(formData.phoneNumber.length)
+    if(formData.phoneNumber.length !== 10){
+      toast.error("Please enter a valid phone number!")
+      return;
+    }
+
+
+    if (images.length < minPhotos) {
+      toast.error(`Please upload at least ${minPhotos} photos.`);
+      return;
+    }
+
+    const finalData = { ...formData, amenities: selectedAmenities, images };
     setIsLoading(true);
-    try{
+
+    try {
       const formDataToSend = new FormData();
       for (const key in finalData) {
         if (key === "images") {
           finalData[key].forEach((file) => formDataToSend.append(key, file));
         } else if (key === "address") {
-          for (const addressKey in finalData.address) {
-            formDataToSend.append(`address[${addressKey}]`, finalData.address[addressKey]);
-          }
+          Object.entries(finalData.address).forEach(([k, v]) =>
+            formDataToSend.append(`address[${k}]`, v)
+          );
         } else if (key === "amenities") {
           finalData[key].forEach((amenity) => formDataToSend.append(key, amenity));
-        }
-        else {
+        } else {
           formDataToSend.append(key, finalData[key]);
         }
       }
 
-      // for (let [key, value] of formDataToSend.entries()) {
-      //   console.log(key, value);
-      // }
-
-      const response = await axios.post("/v1/villas/create-villa", formDataToSend)
-      console.log(response.data);
-      if(response.data.statusCode === 201){
+      const response = await axios.post("/v1/villas/create-villa", formDataToSend);
+      if (response.data.statusCode === 201) {
         toast.success("Villa successfully listed for review.");
-        setFormData({ address: {} });
+        setFormData(initialFormData);
         setSelectedAmenities([]);
         setImages([]);
         setCustomAmenity("");
-      }else{
+        // navigate("/"); 
+      } else {
         toast.error("Error while submitting the form. Please try again.");
       }
-    }catch(err){
+    } catch (err) {
       toast.error("Error while submitting the form. Please try again.");
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -133,21 +157,22 @@ export default function PropertyRequestPage() {
               { name: "villaName", placeholder: "Villa Name *", type: "text" },
               { name: "email", placeholder: "Email ID *", type: "email" },
               { name: "phoneNumber", placeholder: "Mobile Phone *", type: "tel" },
-              { name: "numberOfRooms", placeholder: "Number of Rooms *", type: "number" },
+              { name: "numberOfRooms", placeholder: "Number of Rooms *", type: "number" }
             ].map((field) => (
               <input
                 key={field.name}
                 name={field.name}
                 type={field.type}
+                value={formData[field.name]}
                 onChange={handleChange}
                 required
                 placeholder={field.placeholder}
                 className="w-full border border-gray-300 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 rounded-lg p-3 text-gray-800"
               />
             ))}
-
             <select
               name="propertyType"
+              value={formData.propertyType}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 rounded-lg p-3 text-gray-800"
@@ -169,11 +194,10 @@ export default function PropertyRequestPage() {
                   key={field}
                   name={field}
                   type="text"
+                  value={formData.address[field]}
                   onChange={handleChange}
                   required
-                  placeholder={
-                    field.charAt(0).toUpperCase() + field.slice(1) + " *"
-                  }
+                  placeholder={`${field.charAt(0).toUpperCase() + field.slice(1)} *`}
                   className="w-full border border-gray-300 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 rounded-lg p-3 text-gray-800"
                 />
               ))}
@@ -184,30 +208,19 @@ export default function PropertyRequestPage() {
           <div>
             <label className="block text-gray-700 font-medium mb-2">Amenities</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                "Air Conditioner",
-                "Private Parking",
-                "Barbeque (Chargeable)",
-                "Microwave",
-                "Sofa",
-                "Dining Table",
-                "Flat Screen Tv",
-                "Wardrobe",
-                "Refrigerator",
-                "WiFi",
-              ].map((item) => (
+              {allAmenities.map((item) => (
                 <label key={item} className="inline-flex items-center">
                   <input
                     type="checkbox"
                     name="amenities"
                     value={item}
+                    checked={selectedAmenities.includes(item)}
                     onChange={handleChange}
                     className="form-checkbox h-5 w-5 text-green-600"
                   />
                   <span className="ml-2 text-gray-800">{item}</span>
                 </label>
               ))}
-
               <div className="col-span-1 sm:col-span-2 flex items-center">
                 <input
                   type="text"
@@ -235,9 +248,15 @@ export default function PropertyRequestPage() {
               name="images"
               accept="image/*"
               multiple
+              required
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg p-2 text-gray-800"
             />
+            {images.length > 0 && (
+              <div className="mt-2 text-sm text-gray-600">
+                {images.length} photo{images.length > 1 ? "s" : ""} selected
+              </div>
+            )}
             {images.length > 0 && (
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {images.map((file, idx) => (
@@ -245,7 +264,7 @@ export default function PropertyRequestPage() {
                     key={idx}
                     src={URL.createObjectURL(file)}
                     alt={`preview-${idx}`}
-                    className="h-24 w-full object-cover rounded-lg"
+                    className="h-24 w-full 객체-cover rounded-lg"
                   />
                 ))}
               </div>
@@ -258,6 +277,8 @@ export default function PropertyRequestPage() {
             <textarea
               name="description"
               rows={4}
+              required
+              value={formData.description}
               onChange={handleChange}
               placeholder="Describe Your Property"
               className="w-full border border-gray-300 rounded-lg p-3 text-gray-800 focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50"
@@ -268,7 +289,13 @@ export default function PropertyRequestPage() {
             type="submit"
             className="w-full py-3 cursor-pointer bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-200"
           >
-            {isLoading ? <div className="flex justify-center items-center"><Loader className="animate-spin"/></div> : "Send Request"}
+            {isLoading ? (
+              <div className="flex justify-center items-center">
+                <Loader className="animate-spin" />
+              </div>
+            ) : (
+              "Send Request"
+            )}
           </button>
         </form>
       </div>

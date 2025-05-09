@@ -138,11 +138,11 @@ export default function UserProfile() {
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               <div className="flex flex-col items-center">
                 <img 
-                  src={userData.profilePicture} 
+                  src={`https://api.dicebear.com/5.x/initials/svg/seed=${user.firstName}`}
                   alt={user.firstName} 
                   className="w-32 h-32 rounded-full object-cover mb-4"
                 />
-                <h2 className="text-xl font-bold">{user.firstName}</h2>
+                <h2 className="text-xl font-bold">{user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1)}</h2>
                 <p className="text-gray-600 mb-4">{user.email}</p>
                 <div className="flex space-x-4 mt-2">
                   <button className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">
@@ -186,17 +186,17 @@ export default function UserProfile() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                       <div className="flex items-center">
                         <User className="text-gray-500 mr-2" size={18} />
-                        <p className="text-gray-900">{user.firstName}</p>
+                        <p className="text-gray-900">{user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1)}</p>
                       </div>
                     </div>
                     
-                    <div>
+                    {user.email && <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                       <div className="flex items-center">
                         <Mail className="text-gray-500 mr-2" size={18} />
                         <p className="text-gray-900">{user.email}</p>
                       </div>
-                    </div>
+                    </div>}
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
