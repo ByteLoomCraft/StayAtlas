@@ -71,9 +71,13 @@ const Header = () => {
               </a>
 
               <div className="relative group">
-                <button className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1">
-                  LOCATION <span className="text-xs">▼</span>
+                <button className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1 
+                                   hover:after:w-full after:transition-all after:duration-300
+                                   after:absolute after:bottom-0 after:left-0 after:h-0.5
+                                   after:bg-[#D6AE7B] after:w-0">
+                  LOCATION {/* <span className="text-xs">▼</span> */}
                 </button>
+                {/*
                 <div className="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 bg-white text-gray-800 min-w-[180px] shadow-xl rounded-xl overflow-hidden mt-2 z-40">
                   <a
                     href="#"
@@ -94,12 +98,17 @@ const Header = () => {
                     Other Locations
                   </a>
                 </div>
-              </div>
+                */}
+              </div> 
 
               <div className="relative group">
-                <button onClick={() => navigate("/exclusive")} className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1">
-                  EXCLUSIVE <span className="text-xs">▼</span>
+                <button onClick={() => navigate("/exclusive")} className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1
+                                                                          hover:after:w-full after:transition-all after:duration-300
+                                                                          after:absolute after:bottom-0 after:left-0 after:h-0.5
+                                                                           after:bg-[#D6AE7B] after:w-0">
+                  EXCLUSIVE {/* <span className="text-xs">▼</span> */}
                 </button>
+                {/*
                 <div className="absolute invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 bg-white text-gray-800 min-w-[180px] shadow-xl rounded-xl overflow-hidden mt-2 z-40">
                   <a
                     href="#"
@@ -120,6 +129,19 @@ const Header = () => {
                     Pool Homes
                   </a>
                 </div>
+                */}
+              </div>
+
+              <div className="relaltive group">
+                <a
+                  href="/explore"
+                  className="text-[#D6AE7B] font-semibold text-sm relative
+                  hover:after:w-full after:transition-all after:duration-300
+                  after:absolute after:bottom-0 after:left-0 after:h-0.5
+                  after:bg-[#D6AE7B] after:w-0"
+                >
+                  EXPLORE
+                </a>
               </div>
 
               <a
