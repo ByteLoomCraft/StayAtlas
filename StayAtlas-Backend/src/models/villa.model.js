@@ -49,6 +49,8 @@ const villaSchema = new mongoose.Schema({
 
   images: [{
     type: String,
+    required:true,
+    
   }],
 
   address: {

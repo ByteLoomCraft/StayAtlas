@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
+import { ContactlessOutlined } from '@mui/icons-material';
 
 const userData = {
   id: 101,
@@ -100,24 +101,31 @@ const bookingsData = [
 export default function UserProfile() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
+  const [bookings,setBookings] = useState([])
+  
+  
 
   const user = useSelector((state)=>state.auth)
-  console.log(user)
+  
 
   useEffect(()=>{
+    
     const fetchData = async ()=>{
+        
         try{
-            const response = await axios.get(`/v1/villas/my-villas`)
+            const response = await axios.get(`/v1/bookings/user`)
             const data = response.data;
-            console.log(data)
+            setBookings(data.data)
+            console.log(data.data)
         }catch(err){
             console.log(err);
             toast.error("An error occurred while submitting the form. Please try again.");
         }
+        
     }
 
     fetchData()
-  })
+  },[])
 
   return (
     <>
@@ -250,12 +258,12 @@ export default function UserProfile() {
               </div>
             )}
 
-            {activeTab === 'bookings' && (
+            {bookings.length > 0 && activeTab === 'bookings' && (
               <div className="space-y-6">
                 <div className="bg-white rounded-lg shadow p-6">
                   <h3 className="text-xl font-bold mb-6">My Bookings</h3>
                   
-                  {bookingsData.map((booking) => (
+                  {bookings.map((booking) => (
                     <div key={booking.id} className="mb-6 p-6 border rounded-lg hover:shadow-md transition-shadow">
                       <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                         <h4 className="text-lg font-bold mb-2 md:mb-0">{booking.villaName}</h4>
@@ -270,7 +278,7 @@ export default function UserProfile() {
                       <div className="flex flex-col md:flex-row mb-4">
                         <div className="md:w-1/3 mb-4 md:mb-0">
                           <img 
-                            src={booking.photos[0]} 
+                            src={booking.images[0]} 
                             alt={booking.villaName} 
                             className="w-full h-48 object-cover rounded-lg"
                           />
@@ -292,7 +300,7 @@ export default function UserProfile() {
                           </div>
                           
                           <div className="flex flex-wrap gap-2 mt-3">
-                            {booking.amenities.slice(0, 4).map((amenity, index) => (
+                            {booking.amenities.slice(0, 1).map((amenity, index) => (
                               <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
                                 <Check className="text-teal-500 mr-1" size={12} />
                                 {amenity}
@@ -305,7 +313,7 @@ export default function UserProfile() {
                       <div className="border-t pt-4 flex flex-col md:flex-row justify-between items-start md:items-center">
                         <div>
                           <p className="text-gray-700">
-                            <span className="font-medium">Total:</span> {booking.totalAmount}
+                            <span className="font-medium">Total:</span> {booking.pri}
                           </p>
                           <p className="text-gray-700">
                             <span className="font-medium">Guests:</span> {booking.guests} • <span className="font-medium">Rooms:</span> {booking.rooms}

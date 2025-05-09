@@ -121,7 +121,7 @@ const userDetails = await User.findById(req.user._id);
 //  route   GET /api/v1/bookings/:id
 
 export const getBookingById = asyncHandler(async (req, res) => {
-  const booking = await Booking.findById(req.params.id)
+  const booking = await Booking.find(req.params.id)
     .populate('user', 'name email')
     .populate('villa', 'name location images');
 
@@ -136,8 +136,9 @@ export const getBookingById = asyncHandler(async (req, res) => {
 //  route   GET /api/v1/bookings/user/:userId
 
 export const getUserBookings = asyncHandler(async (req, res) => {
+  console.log(req)
   const userId = req.user._id; // previous req.params.userId 
-
+  console.log(userId)
   const bookings = await Booking.find({ user: userId })
     .sort({ createdAt: -1 })
     .populate('villa', 'villaName address images');

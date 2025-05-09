@@ -23,10 +23,10 @@ router.get('/check-availability/:villaId',verifyJWT, checkBookingAvailability);
 router.post('/', verifyJWT, createBooking);
 
 //  Authenticated users only (can only see own booking)
-router.get('/:id', verifyJWT, getBookingById);
+router.get('/customer/:id', verifyJWT, getBookingById);
 
 //  Authenticated users can see their own bookings
-router.get('/user', verifyJWT, getUserBookings); //previosly /user/:userId
+router.get('/customer', verifyJWT, getUserBookings); //previosly /user/:userId
 
 //  Admin only: View a booking by ID
 router.get('/admin/:id', verifyJWT, isAdmin, getBookingByIdAdmin);
