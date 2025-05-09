@@ -131,7 +131,7 @@ export default function Login() {
 
         <button
           type="submit"
-          className="mt-6 w-full p-2 rounded text-white font-semibold"
+          className="cursor-pointer mt-6 w-full p-2 rounded text-white font-semibold"
           style={{ backgroundColor: bottleGreen }}
         >
           Login
