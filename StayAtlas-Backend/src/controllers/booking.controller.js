@@ -140,7 +140,6 @@ export const getBookingById = asyncHandler(async (req, res) => {
 //  route   GET /api/v1/bookings/user/:userId
 
 export const getUserBookings = asyncHandler(async (req, res) => {
-  console.log(req)
   const userId = req.user._id; // previous req.params.userId 
   console.log(userId)
   const bookings = await Booking.find({ user: userId })

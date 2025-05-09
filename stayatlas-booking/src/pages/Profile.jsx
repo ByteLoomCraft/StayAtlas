@@ -11,7 +11,7 @@ const Profile = () => {
   
 
   return (
-    <div>{(user.role==='villaOwner')? <VillaOwnerProfile />:<UserProfile />}</div>
+    <div><UserProfile/></div>
   )
 }
 
