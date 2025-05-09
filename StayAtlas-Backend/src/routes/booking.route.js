@@ -8,6 +8,7 @@ import {
   getAllBookingAdmin,
   cancelBooking,
   confirmPayment,
+  getAllVillaOwnerBookings
 } from '../controllers/booking.controller.js';
 
 import { verifyJWT } from '../middlewares/auth.middleware.js';
@@ -42,6 +43,10 @@ router.patch('/:id/cancel', verifyJWT, cancelBooking);
 
 //  Authenticated users confirm payment
 router.patch('/:id/pay', verifyJWT, confirmPayment);
+
+
+// get all villa owner bookings
+router.get("/villaowner",verifyJWT,getAllVillaOwnerBookings)
 
 
 export default router;

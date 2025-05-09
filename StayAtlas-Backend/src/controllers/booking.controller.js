@@ -260,3 +260,52 @@ export const checkBookingAvailability = asyncHandler(async (req, res) => {
   );
 });
 
+
+
+export const getAllVillaOwnerBookings = async(req,res) => {
+  try{
+    const villaOwnerId = req.user._id;
+
+    const villaUser = await User.findById(villaOwnerId)
+
+    // find all bookings via villa
+
+    if(!villaUser){
+      return res.status(400).json({
+        statusCode:400,
+        message:"Villa Owner not found!"
+      })
+    }
+
+    const ownedVillas = await Villa.find({ ownerId: villaOwnerId });
+    if (!ownedVillas.length) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "No villas found for this owner."
+      });
+    }
+
+    const villaIds = ownedVillas.map(v => v._id);
+
+    const bookings = await Booking.find({
+      villa: { $in: villaIds }
+    })
+      .populate('villa','villaName')           
+      .populate('user', 'firstName lastName email phoneNumber')  
+      .sort({ checkIn: -1 });   
+  console.log(bookings)
+    
+    return res.status(200).json({
+      statusCode:200,
+      data: bookings,
+      message:"Villa bookings fetched successfully!"
+    })
+    
+  }catch(err){
+    return res.status(400).json({
+      success:false,
+      message:"Error in fetching bookings"
+    })
+  }
+}
+

@@ -1,28 +1,9 @@
-import { useState } from 'react';
-import { User, Home, Phone, Mail, Calendar, MapPin, Settings, ChevronDown, ChevronUp, Menu, X, Edit, Trash, Plus, Users, FileText, Star, DollarSign, Clock, AlertTriangle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { User, Home, Phone, Mail, Calendar, MapPin, Settings, ChevronDown, ChevronUp, Menu, X, Edit, Trash, Plus, Users, FileText, Star, DollarSign, Clock, AlertTriangle, Loader } from 'lucide-react';
 import { useSelector } from 'react-redux';
-
-const ownerData = {
-    id: 201,
-    fullName: "Raj Malhotra",
-    email: "raj.malhotra@example.com",
-    mobile: "+91 98765 43210",
-    dateOfBirth: "1985-08-22",
-    address: "15 Juhu Beach Road, Mumbai, Maharashtra",
-    profilePicture: "/api/placeholder/150/150",
-    joinedDate: "2023-04-15",
-    totalBookings: 87,
-    totalEarnings: "₹15,45,000",
-    accountStatus: "Verified",
-    rating: 4.7,
-    bankDetails: {
-        accountHolderName: "Raj Malhotra",
-        accountNumber: "XXXX XXXX 5678",
-        bankName: "HDFC Bank",
-        ifscCode: "HDFC0001234",
-        branch: "Juhu Branch, Mumbai"
-    }
-};
+import toast from 'react-hot-toast';
+import axios from '../utils/axios';
+import { useNavigate } from 'react-router-dom';
 
 const villasData = [
     {
@@ -102,7 +83,47 @@ export default function VillaOwnerProfile() {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [expandedVilla, setExpandedVilla] = useState(null);
     const [propertyStatus, setPropertyStatus] = useState('all');
+    const [villas, setVillas] = useState(null)
+    const [villaBookings, setVillaBookings] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
     const user = useSelector((state)=>state.auth)
+    const navigate = useNavigate()
+   
+    // console.log(villas)
+    // console.log(villaBookings)
+
+    useEffect(()=>{
+        async function fetchData() {
+            setIsLoading(true)
+            try{
+                const [villas, bookings] = await Promise.all([
+                    axios.get('/v1/villas/my-villas'),
+                    axios.get('/v1/bookings/villaowner')
+                ])
+                if(villas.data.statusCode === 200){
+                    setVillas(villas.data.data)
+                }else{
+                    toast.error("Error in fetching villas")
+                }
+
+                if(bookings.data.statusCode === 200){
+                    setVillaBookings(bookings.data.data)
+                }else{
+                    toast.error("Error in fetching bookings")
+                }
+                
+                
+            }catch(err){
+                console.log("Error:",err)
+                toast.error("Error in fetching villa owner, Please try again later!")
+            }
+            setIsLoading(false)
+        }
+        fetchData()
+    },[])
+
+
+
     
 
     const toggleVillaDetails = (villaId) => {
@@ -113,16 +134,29 @@ export default function VillaOwnerProfile() {
         }
     };
 
-    const totalVillas = villasData.length;
-    const activeVillas = villasData.filter(villa => villa.status === 'Active').length;
-    const pendingVillas = villasData.filter(villa => villa.status === 'Pending').length;
-    const rejectedVillas = villasData.filter(villa => villa.status === 'Rejected').length;
-    const totalBookings = villasData.reduce((acc, villa) => acc + (villa.totalBookings || 0), 0);
-    const upcomingBookings = villasData.reduce((acc, villa) => acc + (villa.upcomingBookings || 0), 0);
+    if(isLoading){
+        return <div className="h-screen text-2xl flex justify-center items-center text-red-800">
+           <Loader className='animate-spin'/>
+        </div>
+    }
+
+    if(!villas){
+        return  <div className="h-screen text-2xl flex justify-center items-center text-red-800">
+            No villa to fetch!
+        </div>
+    }
+
+    const totalVillas = villas.length;
+    const activeVillas = villas.filter(villa => villa.approvalStatus === 'approved').length;
+    const pendingVillas = villas.filter(villa => villa.approvalStatus === 'pending').length;
+    const rejectedVillas = villas.filter(villa => villa.approvalStatus === 'rejected').length;
+    const totalBookings = villaBookings.reduce((acc, villa) => acc + (villa.totalBookings || 0), 0);
+    const upcomingBookings = villaBookings.reduce((acc, villa) => acc + (villa.upcomingBookings || 0), 0);
 
     const filteredVillas = propertyStatus === 'all'
-        ? villasData
-        : villasData.filter(villa => villa.status.toLowerCase() === propertyStatus);
+        ? villas
+        : villas.filter(villa => villa.approvalStatus.toLowerCase() === propertyStatus);
+
 
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -132,24 +166,24 @@ export default function VillaOwnerProfile() {
                         <div className="bg-white rounded-lg shadow p-6 mb-6">
                             <div className="flex flex-col items-center">
                                 <img
-                                    src={ownerData.profilePicture}
-                                    alt={ownerData.fullName}
+                                    src={`https://api.dicebear.com/5.x/initials/svg/seed=${user.firstName}`}
+                                    alt={user.firstName}
                                     className="w-32 h-32 rounded-full object-cover mb-4"
                                 />
-                                <h2 className="text-xl font-bold">{ownerData.fullName}</h2>
-                                <p className="text-gray-600">{ownerData.email}</p>
-                                <div className="flex items-center mt-2">
+                                <h2 className="text-xl font-bold">{`${user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1)} ${user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1)}`}</h2>
+                                {user.email && <p className="text-gray-600">{user.email}</p>}
+                                {/* <div className="flex items-center mt-2">
                                     <Star className="text-yellow-500" size={16} />
                                     <span className="ml-1 text-gray-700">{ownerData.rating} Rating</span>
-                                </div>
+                                </div> */}
                                 <span className="mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                                    {ownerData.accountStatus}
+                                    Verified
                                 </span>
-                                <div className="flex space-x-4 mt-4">
+                                {/* <div className="flex space-x-4 mt-4">
                                     <button className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">
                                         Edit Profile
                                     </button>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
 
@@ -194,7 +228,7 @@ export default function VillaOwnerProfile() {
                                 </span>
                             </div>
 
-                            <div
+                            {/* <div
                                 className={`flex items-center p-4 cursor-pointer ${activeTab === 'settings' ? 'bg-teal-50 border-l-4 border-teal-600' : ''}`}
                                 onClick={() => setActiveTab('settings')}
                             >
@@ -202,7 +236,7 @@ export default function VillaOwnerProfile() {
                                 <span className={activeTab === 'settings' ? 'font-medium text-teal-600' : 'text-gray-700'}>
                                     Settings
                                 </span>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
 
@@ -218,7 +252,7 @@ export default function VillaOwnerProfile() {
                                                 <h4 className="text-blue-700 font-medium">Total Properties</h4>
                                                 <Home className="text-blue-500" size={20} />
                                             </div>
-                                            <p className="text-2xl font-bold text-blue-800">{totalVillas}</p>
+                                            <p className="text-2xl font-bold text-blue-800">{villas.length}</p>
                                             <p className="text-sm text-blue-600">{activeVillas} active listings</p>
                                         </div>
 
@@ -236,22 +270,22 @@ export default function VillaOwnerProfile() {
                                                 <h4 className="text-green-700 font-medium">Total Bookings</h4>
                                                 <Calendar className="text-green-500" size={20} />
                                             </div>
-                                            <p className="text-2xl font-bold text-green-800">{totalBookings}</p>
-                                            <p className="text-sm text-green-600">{upcomingBookings} upcoming</p>
+                                            <p className="text-2xl font-bold text-green-800">{villaBookings.length}</p>
+                                            {/* <p className="text-sm text-green-600">{upcomingBookings} upcoming</p> */}
                                         </div>
 
-                                        <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                                        {/* <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
                                             <div className="flex items-center justify-between mb-2">
                                                 <h4 className="text-amber-700 font-medium">Total Earnings</h4>
                                                 <DollarSign className="text-amber-500" size={20} />
                                             </div>
                                             <p className="text-2xl font-bold text-amber-800">{ownerData.totalEarnings}</p>
                                             <p className="text-sm text-amber-600">Lifetime earnings</p>
-                                        </div>
+                                        </div> */}
                                     </div>
 
 
-                                    <div>
+                                    {/* <div>
                                         <h4 className="text-lg font-medium mb-4">Recent Activity</h4>
                                         <div className="border rounded-lg divide-y">
                                             <div className="p-4 flex items-start">
@@ -276,7 +310,7 @@ export default function VillaOwnerProfile() {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         )}
@@ -286,7 +320,7 @@ export default function VillaOwnerProfile() {
                                 <div className="bg-white rounded-lg shadow p-6">
                                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                                         <h3 className="text-xl font-bold">My Properties</h3>
-                                        <button className="mt-4 md:mt-0 flex items-center bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">
+                                        <button onClick={() => navigate("/list")} className="cursor-pointer mt-4 md:mt-0 flex items-center bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">
                                             <Plus size={18} className="mr-2" />
                                             Add New Property
                                         </button>
@@ -300,10 +334,10 @@ export default function VillaOwnerProfile() {
                                             All ({totalVillas})
                                         </button>
                                         <button
-                                            onClick={() => setPropertyStatus('active')}
+                                            onClick={() => setPropertyStatus('approved')}
                                             className={`px-3 py-1 rounded-md text-sm font-medium ${propertyStatus === 'active' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                                         >
-                                            Active ({activeVillas})
+                                            Approved ({activeVillas})
                                         </button>
                                         <button
                                             onClick={() => setPropertyStatus('pending')}
@@ -320,16 +354,17 @@ export default function VillaOwnerProfile() {
                                     </div>
 
                                     <div className="space-y-6">
+                                        {console.log(filteredVillas)}
                                         {filteredVillas.map((villa) => (
-                                            <div key={villa.id} className={`border rounded-lg overflow-hidden bg-white ${villa.status === 'Pending' ? 'border-l-4 border-l-purple-500' :
-                                                villa.status === 'Rejected' ? 'border-l-4 border-l-red-500' :
+                                            <div key={villa._id} className={`border rounded-lg overflow-hidden bg-white ${villa.approvalStatus === 'pending' ? 'border-l-4 border-l-purple-500' :
+                                                villa.approvalStatus === 'rejected' ? 'border-l-4 border-l-red-500' :
                                                     'border-l-4 border-l-green-500'
                                                 }`}>
                                                 <div className="p-6">
                                                     <div className="flex flex-col md:flex-row">
                                                         <div className="md:w-1/3 mb-4 md:mb-0">
                                                             <img
-                                                                src={villa.photos[0]}
+                                                                src={villa.images[0]}
                                                                 alt={villa.villaName}
                                                                 className="w-full h-48 object-cover rounded-lg"
                                                             />
@@ -339,10 +374,10 @@ export default function VillaOwnerProfile() {
                                                             <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
                                                                 <h4 className="text-lg font-bold mb-2 md:mb-0">{villa.villaName}</h4>
                                                                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                  ${villa.status === 'Active' ? 'bg-green-100 text-green-800' :
-                                                                        villa.status === 'Pending' ? 'bg-purple-100 text-purple-800' :
+                                                                        ${villa.approvalStatus === 'approved' ? 'bg-green-100 text-green-800' :
+                                                                        villa.approvalStatus === 'pending' ? 'bg-purple-100 text-purple-800' :
                                                                             'bg-red-100 text-red-800'}`}>
-                                                                    {villa.status}
+                                                                    {villa.approvalStatus.charAt(0).toUpperCase() + villa.approvalStatus.slice(1)}
                                                                 </span>
                                                             </div>
 
@@ -356,7 +391,7 @@ export default function VillaOwnerProfile() {
                                                                 <div className="flex items-center">
                                                                     <Home className="text-gray-500 mr-2" size={16} />
                                                                     <p className="text-gray-700">
-                                                                        {villa.propertyType} • {villa.rooms} Rooms • Max {villa.maxGuests} Guests
+                                                                        {villa.propertyType.charAt(0).toUpperCase() + villa.propertyType.slice(1)} • {villa.numberOfRooms} Rooms • Max {villa.numberOfRooms*2} Guests
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -374,26 +409,26 @@ export default function VillaOwnerProfile() {
                                                                 )}
                                                             </div>
 
-                                                            {villa.status === 'Active' && (
+                                                            {villa.approvalStatus === 'approved' && (
                                                                 <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
                                                                     <div className="text-center p-2 bg-gray-50 rounded">
                                                                         <p className="text-sm text-gray-600">Price/Night</p>
                                                                         <p className="font-medium">{villa.pricePerNight}</p>
                                                                     </div>
-                                                                    <div className="text-center p-2 bg-gray-50 rounded">
+                                                                    {/* <div className="text-center p-2 bg-gray-50 rounded">
                                                                         <p className="text-sm text-gray-600">Total Bookings</p>
                                                                         <p className="font-medium">{villa.totalBookings}</p>
-                                                                    </div>
-                                                                    <div className="text-center p-2 bg-gray-50 rounded">
+                                                                    </div> */}
+                                                                    {/* <div className="text-center p-2 bg-gray-50 rounded">
                                                                         <p className="text-sm text-gray-600">Rating</p>
                                                                         <p className="font-medium flex items-center justify-center">
                                                                             {villa.rating} <Star className="text-yellow-500 ml-1" size={14} />
                                                                         </p>
-                                                                    </div>
+                                                                    </div> */}
                                                                 </div>
                                                             )}
 
-                                                            {villa.status === 'Pending' && (
+                                                            {villa.approved === 'pending' && (
                                                                 <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
                                                                     <div className="flex items-start">
                                                                         <Clock className="text-purple-500 mr-2 mt-1" size={18} />
@@ -406,7 +441,7 @@ export default function VillaOwnerProfile() {
                                                                 </div>
                                                             )}
 
-                                                            {villa.status === 'Rejected' && (
+                                                            {villa.approved === 'rejected' && (
                                                                 <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
                                                                     <div className="flex items-start">
                                                                         <AlertTriangle className="text-red-500 mr-2 mt-1" size={18} />
@@ -423,24 +458,24 @@ export default function VillaOwnerProfile() {
 
                                                     <div className="flex justify-between items-center mt-4 pt-4 border-t">
                                                         <div className="flex space-x-3">
-                                                            <button className="px-3 py-1 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                                            {/* <button className="px-3 py-1 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                                                                 <Edit size={16} className="inline mr-1" /> Edit
                                                             </button>
                                                             <button className="px-3 py-1 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                                                                 <Trash size={16} className="inline mr-1" /> Delete
                                                             </button>
-                                                            {villa.status === 'Rejected' && (
+                                                            {villa.approved === 'rejected' && (
                                                                 <button className="px-3 py-1 bg-teal-600 text-white rounded-md hover:bg-teal-700">
                                                                     <Edit size={16} className="inline mr-1" /> Resubmit
                                                                 </button>
-                                                            )}
+                                                            )} */}
                                                         </div>
 
                                                         <button
                                                             className="flex items-center text-teal-600 hover:text-teal-800"
-                                                            onClick={() => toggleVillaDetails(villa.id)}
+                                                            onClick={() => toggleVillaDetails(villa._id)}
                                                         >
-                                                            {expandedVilla === villa.id ? (
+                                                            {expandedVilla === villa._id ? (
                                                                 <>Less Details <ChevronUp size={18} className="ml-1" /></>
                                                             ) : (
                                                                 <>More Details <ChevronDown size={18} className="ml-1" /></>
@@ -449,7 +484,7 @@ export default function VillaOwnerProfile() {
                                                     </div>
                                                 </div>
 
-                                                {expandedVilla === villa.id && (
+                                                {expandedVilla === villa._id && (
                                                     <div className="bg-gray-50 p-6 border-t">
                                                         {villa.status === 'Active' && villa.recentBookings && villa.recentBookings.length > 0 && (
                                                             <>
@@ -532,52 +567,52 @@ export default function VillaOwnerProfile() {
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                                             <div className="flex items-center">
                                                 <User className="text-gray-500 mr-2" size={18} />
-                                                <p className="text-gray-900">{ownerData.fullName}</p>
+                                                <p className="text-gray-900">{`${user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1)} ${user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1)}`}</p>
                                             </div>
                                         </div>
 
-                                        <div>
+                                        {user.email && <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                                             <div className="flex items-center">
                                                 <Mail className="text-gray-500 mr-2" size={18} />
-                                                <p className="text-gray-900">{ownerData.email}</p>
+                                                <p className="text-gray-900">{user.email}</p>
                                             </div>
-                                        </div>
+                                        </div>}
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                                             <div className="flex items-center">
                                                 <Phone className="text-gray-500 mr-2" size={18} />
-                                                <p className="text-gray-900">{ownerData.mobile}</p>
+                                                <p className="text-gray-900">{user.userPhone}</p>
                                             </div>
                                         </div>
 
-                                        <div>
+                                        {user.dob && <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
                                             <div className="flex items-center">
                                                 <Calendar className="text-gray-500 mr-2" size={18} />
-                                                <p className="text-gray-900">{ownerData.dateOfBirth}</p>
+                                                <p className="text-gray-900">{user.dob}</p>
                                             </div>
-                                        </div>
+                                        </div>}
 
-                                        <div>
+                                        {/* <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
                                             <div className="flex items-center">
                                                 <MapPin className="text-gray-500 mr-2" size={18} />
                                                 <p className="text-gray-900">{ownerData.address}</p>
                                             </div>
-                                        </div>
+                                        </div> */}
 
-                                        <div>
+                                        {/* <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">Member Since</label>
                                             <div className="flex items-center">
                                                 <Calendar className="text-gray-500 mr-2" size={18} />
                                                 <p className="text-gray-900">{ownerData.joinedDate}</p>
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </div>
 
-                                    <div className="mt-8 pt-6 border-t">
+                                    {/* <div className="mt-8 pt-6 border-t">
                                         <h4 className="text-lg font-medium mb-4">Bank Information</h4>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -628,7 +663,7 @@ export default function VillaOwnerProfile() {
                                                 Update Bank Details
                                             </button>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         )}
@@ -637,7 +672,7 @@ export default function VillaOwnerProfile() {
                             <div className="bg-white rounded-lg shadow p-6">
                                 <h3 className="text-xl font-bold mb-6">Bookings</h3>
 
-                                <div className="overflow-x-auto">
+                                {!villaBookings.length === 0 ? <div className='flex justify-center items-center text-gray-400'>No Bookings Found</div> :  <div className="overflow-x-auto">
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gray-100">
                                             <tr>
@@ -648,49 +683,47 @@ export default function VillaOwnerProfile() {
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guests</th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                                {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th> */}
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
-                                            {villasData?.map((villa) =>
-                                                Array.isArray(villa.recentBookings) ? (
-                                                    villa.recentBookings.map((booking, index) => (
-                                                        <tr key={`${villa.id}-${index}`}>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">{villa.villaName}</td>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">{booking.guestName}</td>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">{booking.checkIn}</td>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">{booking.checkOut}</td>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">{booking.guests}</td>
-                                                            <td className="px-4 py-3 text-sm text-gray-900">{booking.amount}</td>
-                                                            <td className="px-4 py-3 text-sm">
-                                                                <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                                                                    Confirmed
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-4 py-3 text-sm">
-                                                                <div className="flex space-x-2">
-                                                                    <button className="p-1 text-blue-600 hover:text-blue-800">
-                                                                        <Edit size={16} />
-                                                                    </button>
-                                                                    <button className="p-1 text-red-600 hover:text-red-800">
-                                                                        <Trash size={16} />
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                ) : null
-                                            )}
+                                            {
+                                                villaBookings.map((booking, index) => (
+                                                    <tr key={`${booking._id}-${index}`}>
+                                                        <td className="px-4 py-3 text-sm text-gray-900">{booking.villa.villaName}</td>
+                                                        <td className="px-4 py-3 text-sm text-gray-900">{`${booking.user.firstName.charAt(0).toUpperCase() + booking.user.firstName.slice(1)} ${booking.user.lastName.charAt(0).toUpperCase() + booking.user.lastName.slice(1)}`}</td>
+                                                        <td className="px-4 py-3 text-sm text-gray-900">{new Date(booking.checkIn).toLocaleDateString()}</td>
+                                                        <td className="px-4 py-3 text-sm text-gray-900">{new Date(booking.checkOut).toLocaleDateString()}</td>
+                                                        <td className="px-4 py-3 text-sm text-gray-900">{booking.guests.adults + booking.guests.children + booking.guests.pets }</td>
+                                                        <td className="px-4 py-3 text-sm text-gray-900">{booking.totalAmount.$numberDecimal}</td>
+                                                        <td className="px-4 py-3 text-sm">
+                                                            <span className={`px-2 py-1 text-xs rounded-full  ${booking.status === "Confirmed" ? "text-green-800 bg-green-100" : booking.status === "Cancelled" ? "text-white bg-red-600" : "text-white bg-purple-900"}`}>
+                                                                {booking.status}
+                                                            </span>
+                                                        </td>
+                                                        {/* <td className="px-4 py-3 text-sm">
+                                                            <div className="flex space-x-2">
+                                                                <button className="p-1 text-blue-600 hover:text-blue-800">
+                                                                    <Edit size={16} />
+                                                                </button>
+                                                                <button className="p-1 text-red-600 hover:text-red-800">
+                                                                    <Trash size={16} />
+                                                                </button>
+                                                            </div>
+                                                        </td> */}
+                                                    </tr>
+                                                ))
+                                            }
                                         </tbody>
                                     </table>
-                                </div>
+                                </div>}
                             </div>
                         )}
 
 
 
 
-                        {activeTab === 'settings' && (
+                        {/* {activeTab === 'settings' && (
                             <div className="bg-white rounded-lg shadow p-6">
                                 <h3 className="text-xl font-bold mb-6">Account Settings</h3>
 
@@ -850,7 +883,7 @@ export default function VillaOwnerProfile() {
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        )} */}
                     </div>
                 </div>
             </main>
