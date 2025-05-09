@@ -98,7 +98,7 @@ export default function PropertyListingGrid() {
                   )
                 }
               </div> */}
-              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3">
+              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3 ">
                 {property?.amenities?.join(' • ')}
               </div>
               

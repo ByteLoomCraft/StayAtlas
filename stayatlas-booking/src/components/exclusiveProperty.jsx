@@ -172,7 +172,7 @@ export default function ExclusiveProperty() {
                   )
                 }
               </div> */}
-              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3">
+              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3 truncate whitespace-nowrap overflow-hidden">
                 {property?.amenities?.join(' • ')}
               </div>
               {/* <div className="text-sm text-gray-700 mb-3">
