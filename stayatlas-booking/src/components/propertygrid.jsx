@@ -56,7 +56,7 @@ export default function PropertyListingGrid() {
                 alt={property.villaName} 
                 className="w-full h-48 object-cover"
               />
-              <button 
+              {/* <button 
                 onClick={() => toggleFavorite(property.id)}
                 className=" absolute top-3 cursor-pointer hover:bg-gray-300 p-1 right-3 bg-white rounded-full"
               >
@@ -65,7 +65,7 @@ export default function PropertyListingGrid() {
                   fill={favorites[property.id] ? "red" : "none"} 
                   color={favorites[property.id] ? "none" : "#000000"} 
                 />
-              </button>
+              </button> */}
             </div>
             
             <div className="p-4">

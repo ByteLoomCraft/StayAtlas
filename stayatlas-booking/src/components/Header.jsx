@@ -3,6 +3,7 @@ import { useMatch, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "@/state/features/authSlice";
 import logo from "../assets/stay.jpg";
+import { Bars3Icon } from '@heroicons/react/24/outline';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -194,7 +195,8 @@ const Header = () => {
                 onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
                 className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1"
               >
-                MENU <span className="text-xs">▼</span>
+                  <Bars3Icon className="h-5 w-5 sm:hidden" />
+                  <span className="hidden sm:inline">MENU</span>
               </button>
 
               {isMobileDropdownOpen && (
@@ -204,6 +206,18 @@ const Header = () => {
                     className="block px-4 py-3 hover:bg-[#D6AE7B] hover:text-white transition-all duration-200"
                   >
                     HOME
+                  </a>
+                  <a
+                    href="/exclusive"
+                    className="block px-4 py-3 hover:bg-[#D6AE7B] hover:text-white transition-all duration-200"
+                  >
+                    EXCLUSIVE
+                  </a>
+                  <a
+                    href="/explore"
+                    className="block px-4 py-3 hover:bg-[#D6AE7B] hover:text-white transition-all duration-200"
+                  >
+                    EXPLORE
                   </a>
                   <a
                     href="https://wa.me/918591131447"
