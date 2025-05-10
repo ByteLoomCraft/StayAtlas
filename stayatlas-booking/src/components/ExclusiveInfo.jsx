@@ -265,7 +265,7 @@ const ExclusiveInfo = () => {
 
           </div>
           </div>
-            <div className="p-0 m-0 w-1/2 h-0 md:h-full object-cover"
+            <div className="p-0 m-0 w-full md:w-1/2 h-[300px] md:h-full object-cover"
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
@@ -274,7 +274,7 @@ const ExclusiveInfo = () => {
               onMouseUp={onMouseUp}
               onMouseLeave={onMouseLeave}
             >
-              <img src={property.images[currentImageIndex]} className="h-0 md:h-215" alt="" />
+              <img src={property.images[currentImageIndex]} className="w-full h-full object-cover" alt="" />
             </div>
         </div>
         </div>   
