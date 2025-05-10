@@ -17,8 +17,7 @@ export default function UserProfile() {
   
 
   const user = useSelector((state)=>state.auth)
-  console.log(user.role);
-  console.log(typeof user.role)
+
 
   
 
