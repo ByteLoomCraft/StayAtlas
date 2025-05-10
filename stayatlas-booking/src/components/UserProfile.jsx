@@ -36,7 +36,7 @@ export default function UserProfile() {
   
     fetchBookings();
   }, []);
-  console.log(typeof bookings[0].villa.numberOfRooms)
+
   
 
   return (
