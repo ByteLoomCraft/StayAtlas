@@ -88,35 +88,35 @@ export default function ExclusiveProperty() {
     // ]);
   }, []);
 
-  useEffect(() => {
-    if (!hotels.length) return;
+  // useEffect(() => {
+  //   if (!hotels.length) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleCards((prev) => ({
-              ...prev,
-              [entry.target.dataset.id]: true,
-            }));
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       entries.forEach((entry) => {
+  //         if (entry.isIntersecting) {
+  //           setVisibleCards((prev) => ({
+  //             ...prev,
+  //             [entry.target.dataset.id]: true,
+  //           }));
+  //         }
+  //       });
+  //     },
+  //     { threshold: 0.2 }
+  //   );
 
-    hotels.forEach((hotel) => {
-      const card = cardRefs.current[hotel.id];
-      if (card) observer.observe(card);
-    });
+  //   hotels.forEach((hotel) => {
+  //     const card = cardRefs.current[hotel.id];
+  //     if (card) observer.observe(card);
+  //   });
 
-    return () => {
-      hotels.forEach((hotel) => {
-        const card = cardRefs.current[hotel.id];
-        if (card) observer.unobserve(card);
-      });
-    };
-  }, [hotels]);
+  //   return () => {
+  //     hotels.forEach((hotel) => {
+  //       const card = cardRefs.current[hotel.id];
+  //       if (card) observer.unobserve(card);
+  //     });
+  //   };
+  // }, [hotels]);
 
   return (
     <div className="bg-white py-16 px-4 sm:px-10 lg:px-20">
@@ -130,9 +130,7 @@ export default function ExclusiveProperty() {
             key={property._id}
             data-id={property.id}
             ref={(el) => (cardRefs.current[property.id] = el)}
-            className={`transition-opacity duration-1000 ${
-              visibleCards[property.id] ? 'opacity-100' : 'opacity-0'
-            } bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-lg`}
+            className="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-lg"
           >
             <div className="relative rounded-t-2xl">
               <img
@@ -140,7 +138,7 @@ export default function ExclusiveProperty() {
                 alt={property.villaName}
                 className="w-full h-60 object-cover rounded-md shadow-md"
               />
-              <button
+              {/* <button
                 onClick={() => toggleFavorite(property.id)}
                 className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:scale-110 transition"
               >
@@ -149,7 +147,7 @@ export default function ExclusiveProperty() {
                   fill={favorites[property.id] ? "#000" : "none"}
                   color="#000"
                 />
-              </button>
+              </button> */}
             </div>
 
             <div className="p-6">
@@ -174,7 +172,7 @@ export default function ExclusiveProperty() {
                   )
                 }
               </div> */}
-              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3">
+              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3 truncate whitespace-nowrap overflow-hidden">
                 {property?.amenities?.join(' • ')}
               </div>
               {/* <div className="text-sm text-gray-700 mb-3">

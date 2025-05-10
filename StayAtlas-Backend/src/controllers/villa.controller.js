@@ -11,7 +11,6 @@ export const createVilla = asyncHandler(async (req, res) => {
 
   const files = req.files
   const userId = req.user?._id;
-  console.log("User ID",req.body)
   //console.log("Request Body",req.body)
   if(!userId){
     throw new ApiError(401, "Unauthorized: User not authenticated");
@@ -26,7 +25,8 @@ export const createVilla = asyncHandler(async (req, res) => {
   }
 
   const validatedData = parsed.data
-  //console.log("files",req.files)
+  // console.log("User: ",req.body)
+  // console.log("files",req.files)
 
   const localPathArray = files.map(file => file.path)
 

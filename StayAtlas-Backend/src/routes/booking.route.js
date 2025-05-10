@@ -8,6 +8,7 @@ import {
   getAllBookingAdmin,
   cancelBooking,
   confirmPayment,
+  getAllVillaOwnerBookings
 } from '../controllers/booking.controller.js';
 
 import { verifyJWT } from '../middlewares/auth.middleware.js';
@@ -23,10 +24,10 @@ router.get('/check-availability/:villaId',verifyJWT, checkBookingAvailability);
 router.post('/', verifyJWT, createBooking);
 
 //  Authenticated users only (can only see own booking)
-router.get('/:id', verifyJWT, getBookingById);
+router.get('/customer/:id', verifyJWT, getBookingById);
 
 //  Authenticated users can see their own bookings
-router.get('/user/:userId', verifyJWT, getUserBookings);
+router.get('/user', verifyJWT, getUserBookings); //previosly /user/:userId
 
 //  Admin only: View a booking by ID
 router.get('/admin/:id', verifyJWT, isAdmin, getBookingByIdAdmin);
@@ -42,6 +43,10 @@ router.patch('/:id/cancel', verifyJWT, cancelBooking);
 
 //  Authenticated users confirm payment
 router.patch('/:id/pay', verifyJWT, confirmPayment);
+
+
+// get all villa owner bookings
+router.get("/villaowner",verifyJWT,getAllVillaOwnerBookings)
 
 
 export default router;
