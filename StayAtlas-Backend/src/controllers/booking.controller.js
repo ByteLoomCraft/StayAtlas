@@ -141,10 +141,10 @@ export const getBookingById = asyncHandler(async (req, res) => {
 
 export const getUserBookings = asyncHandler(async (req, res) => {
   const userId = req.user._id; // previous req.params.userId 
-  console.log(userId)
+ 
   const bookings = await Booking.find({ user: userId })
     .sort({ createdAt: -1 })
-    .populate('villa', 'villaName address images');
+    .populate('villa', 'villaName address images numberOfRooms');
 
   res.status(200).json(new ApiResponse(200, bookings));
 });

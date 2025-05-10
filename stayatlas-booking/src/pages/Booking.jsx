@@ -62,7 +62,7 @@ const Booking = () => {
       <VillaHeader title={property.villaName}/>
       <Gallery photos={property.images}/>
       <VillaDetails property={property}/>
-      <Testimonials/>
+      {/* <Testimonials/> */}
     </div>
   )
 }

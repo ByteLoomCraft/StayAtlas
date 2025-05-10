@@ -8,16 +8,16 @@ import { ContactlessOutlined } from '@mui/icons-material';
 
 
 
+
 export default function UserProfile() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   const [activeTab, setActiveTab] = useState('profile');
   const [bookings,setBookings] = useState([])
   
   
 
   const user = useSelector((state)=>state.auth)
-  console.log(user.role);
-  console.log(typeof user.role)
+
 
   
 
@@ -36,6 +36,7 @@ export default function UserProfile() {
   
     fetchBookings();
   }, []);
+
   
 
   return (
@@ -117,22 +118,10 @@ export default function UserProfile() {
                       </div>
                     </div>
                     
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
-                      <div className="flex items-center">
-                        <Calendar className="text-gray-500 mr-2" size={18} />
-                        <p className="text-gray-900">{userData.dateOfBirth}</p>
-                      </div>
-                    </div>
+                    
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                    <div className="flex items-center">
-                      <MapPin className="text-gray-500 mr-2" size={18} />
-                      <p className="text-gray-900">{userData.address}</p>
-                    </div>
-                  </div>
+                  
                 </div>
                 
                 <div className="mt-8 pt-6 border-t">
@@ -177,7 +166,7 @@ export default function UserProfile() {
       {bookings.map((booking) => (
         <div key={booking._id} className="mb-6 p-6 border rounded-lg hover:shadow-md transition-shadow">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
-            <div className="text-lg font-bold mb-2 md:mb-0">{booking.villaDetails?.name}</div>
+            <div className="text-lg font-bold mb-2 md:mb-0">{booking.villa.villaName}</div>
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
               ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' : 
                 booking.status === 'Completed' ? 'bg-blue-100 text-blue-800' : 
@@ -189,17 +178,20 @@ export default function UserProfile() {
           <div className="flex flex-col md:flex-row mb-4">
             <div className="md:w-1/3 mb-4 md:mb-0">
               <img 
-                src={booking.villaDetails?.images?.[0]} 
-                alt={booking.villaDetails?.name} 
+                src={booking.villa?.images?.[0]} 
+                alt={booking.villa?.villaName}
                 className="w-full h-48 object-cover rounded-lg"
               />
+              <p className="mt-2 text-sm text-gray-600 text-center">
+                {booking.villa?.villaName}
+              </p>
             </div>
 
             <div className="md:w-2/3 md:pl-6 space-y-3">
               <div className="flex items-start">
                 <MapPin className="text-gray-500 mr-2 mt-1" size={16} />
                 <p className="text-gray-700">
-                  {booking.villaDetails?.address?.street}, {booking.villaDetails?.address?.landmark}, {booking.villaDetails?.address?.city}, {booking.villaDetails?.address?.state}
+                  {booking.villa?.address?.street}, {booking.villa?.address?.landmark}, {booking.villa?.address?.city}, {booking.villa?.address?.state}
                 </p>
               </div>
 
@@ -211,7 +203,7 @@ export default function UserProfile() {
               </div>
 
               <div className="flex flex-wrap gap-2 mt-3">
-                {booking.villaDetails?.amenities?.slice(0, 4).map((amenity, index) => (
+                {booking.villa?.amenities?.slice(0, 4).map((amenity, index) => (
                   <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
                     <Check className="text-teal-500 mr-1" size={12} />
                     {amenity}
@@ -224,18 +216,13 @@ export default function UserProfile() {
           <div className="border-t pt-4 flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
               <p className="text-gray-700">
-                <span className="font-medium">Total:</span> ₹{parseFloat(booking.totalAmount?.toString()).toFixed(2)}
+                <span className="font-medium">Total:</span> ₹{Number(booking.totalAmount?.$numberDecimal).toLocaleString()}
               </p>
               <p className="text-gray-700">
-                <span className="font-medium">Guests:</span> {booking.guests?.adults + booking.guests?.children + booking.guests?.pets} • <span className="font-medium">Rooms:</span> {booking.rooms ?? 'N/A'}
+                <span className="font-medium">Guests:</span> {booking.guests?.adults + booking.guests?.children + booking.guests?.pets} • <span className="font-medium">Rooms:</span> {(booking.villa.numberOfRooms).toLocaleString()?? 'N/A'}
               </p>
             </div>
 
-            <div className="mt-3 md:mt-0 flex space-x-3">
-              <button className="px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                View Details
-              </button>
-            </div>
           </div>
         </div>
       ))}

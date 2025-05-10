@@ -1,5 +1,7 @@
 import React from "react";
 import logo from "../../assets/stay.jpg";
+import { useNavigate } from 'react-router-dom';
+
 import {
   Card, 
   Typography,
@@ -32,13 +34,14 @@ export default function Sidebar({setSelectedPage}) {
     const [open, setOpen] = React.useState(0);
     const [openAlert, setOpenAlert] = React.useState(true);
 
+    const navigate = useNavigate();
     const handleOpen = (value) => {
         setOpen(open === value ? 0 : value);
     };
 
     return (
         <Card className="h-[calc(100vh-2rem)] w-full max-w-[30rem] p-4 shadow-xl shadow-blue-gray-900/5">
-            <div className="mb-2 flex items-centre gap-4 p-4">
+            <div className="mb-2 flex items-centre gap-4 p-4" onClick={() => navigate('/')}>
                 <img src={logo} alt="logo stay atlas" className="h-12 w-12"/>
                 <Typography variant="h4" color="green">
                     Admin Stay Atlas
