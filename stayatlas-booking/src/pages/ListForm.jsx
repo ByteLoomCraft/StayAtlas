@@ -114,10 +114,20 @@ export default function PropertyRequestPage() {
         navigate("/")
       }else{
         toast.error("Error while submitting the form. Please try again.");
+        // setFormData({ address: {} });
+        // setSelectedAmenities([]);
+        // setImages([]);
+        // setCustomAmenity("");
+        setFormData(null)
       }
     }catch(err){
       toast.error("Error while submitting the form. Please try again.");
       console.error(err);
+      // setFormData({ address: {} });
+      //   setSelectedAmenities([]);
+      //   setImages([]);
+      //   setCustomAmenity("");
+      setFormData(null)
     }
     setIsLoading(false);
   };
