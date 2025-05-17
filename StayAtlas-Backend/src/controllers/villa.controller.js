@@ -15,20 +15,8 @@ export const createVilla = asyncHandler(async (req, res) => {
   if(!userId){
     throw new ApiError(401, "Unauthorized: User not authenticated");
   }
-  const parsed = OwnerVillaSchema.safeParse(req.body);
-  if (!parsed.success) {
-    const errorMessage = parsed.error.issues.map(e => e.message).join(", ");
 
-    //console.log("Error:",parsed)
-    //console.log("Error:",parsed.error)
-    throw new ApiError(400, errorMessage);
-  }
-
-  const validatedData = parsed.data
-  // console.log("User: ",req.body)
-  // console.log("files",req.files)
-
-  const localPathArray = files.map(file => file.path)
+   const localPathArray = files.map(file => file.path)
 
   const cloudinaryResponse = await uploadMultipleImagesParallel(localPathArray)
   //console.log("cloudinaryResponse:",cloudinaryResponse)
@@ -46,6 +34,22 @@ export const createVilla = asyncHandler(async (req, res) => {
     )
   }
   const publicUrls = cloudinaryResponse.map(res => res.secure_url);
+  req.body.images = publicUrls
+
+  const parsed = OwnerVillaSchema.safeParse(req.body);
+  // console.log(req.body);
+  // console.log(parsed.error)
+  if (!parsed.success) {
+    const errorMessage = parsed.error.issues.map(e => e.message).join(", ");
+
+    //console.log("Error:",parsed)
+    //console.log("Error:",parsed.error)
+    throw new ApiError(400, errorMessage);
+  }
+
+  const validatedData = parsed.data
+  // console.log("User: ",req.body)
+  // console.log("files",req.files)
 
   //console.log(publicUrls)
   const villa = await Villa.create({
