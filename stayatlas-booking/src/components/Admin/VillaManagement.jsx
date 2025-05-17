@@ -338,7 +338,7 @@ const VillaManagement = () => {
         setModalOpen(false);
         return
       }
-      editedVilla.numberOfRooms =  String(editedVilla.numberOfRooms)
+      // editedVilla.numberOfRooms =  String(editedVilla.numberOfRooms)
       editedVilla.pricePerNight =  Number(editedVilla.pricePerNight)
       editedVilla.discountPercent =  Number(editedVilla.discountPercent)
       if(editedVilla.approvalStatus === "approved"){
