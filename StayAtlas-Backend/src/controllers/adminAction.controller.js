@@ -194,7 +194,7 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Villa is already approved")
     }
 
-    console.log("villa:",req.body)
+    // console.log("villa:",req.body)
 
     //review and edit the details before approve
     const parsed = AdminVillaSchema.safeParse(req.body)
@@ -205,7 +205,7 @@ const ApprovePendingVillas = asyncHandler(async(req,res)=>{
 
     const validParsedData = parsed.data
 
-    //console.log("validatedData:",validParsedData)
+    console.log("validatedData:",validParsedData)
     Object.assign(villa,validParsedData)
     // Approve the villa
     villa.approvalStatus = "approved";

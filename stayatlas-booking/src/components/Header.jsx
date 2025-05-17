@@ -72,7 +72,7 @@ const Header = () => {
               </a>
 
               <div className="relative group">
-                <button className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1 
+                <button className="cursor-pointer text-[#D6AE7B] font-semibold text-sm flex items-center gap-1 
                                    hover:after:w-full after:transition-all after:duration-300
                                    after:absolute after:bottom-0 after:left-0 after:h-0.5
                                    after:bg-[#D6AE7B] after:w-0">
@@ -103,7 +103,7 @@ const Header = () => {
               </div> 
 
               <div className="relative group">
-                <button onClick={() => navigate("/exclusive")} className="text-[#D6AE7B] font-semibold text-sm flex items-center gap-1
+                <button onClick={() => navigate("/exclusive")} className="cursor-pointer text-[#D6AE7B] font-semibold text-sm flex items-center gap-1
                                                                           hover:after:w-full after:transition-all after:duration-300
                                                                           after:absolute after:bottom-0 after:left-0 after:h-0.5
                                                                            after:bg-[#D6AE7B] after:w-0">

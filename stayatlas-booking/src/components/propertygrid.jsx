@@ -68,8 +68,8 @@ export default function PropertyListingGrid() {
               </button> */}
             </div>
             
-            <div className="p-4">
-              <h3 className="font-bold text-base mb-1">{property.villaName}</h3>
+            <div className="p-4 m-2 flex flex-col justify-around">
+              <h3 className="font-bold text-base mb-1 line-clamp-1">{property.villaName}</h3>
               
               <div className="flex items-center text-gray-500 text-sm mb-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,7 +98,7 @@ export default function PropertyListingGrid() {
                   )
                 }
               </div> */}
-              <div className="w-full line-clamp-2 text-sm text-gray-700 mb-3 ">
+              <div className="w-full line-clamp-1 text-sm text-gray-700 mb-3 ">
                 {property?.amenities?.join(' • ')}
               </div>
               
